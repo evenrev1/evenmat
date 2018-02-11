@@ -1,0 +1,32 @@
+function [LO,LA,Z] = gridsort(lon,lat,z)
+% GRIDSORT sorts gridded but not 2D shaped input data into 2D. 
+%
+% Some times even gridded data are given as vectors and not matrices,
+% often omitting empty gridpoints and with no particular known sorting
+% of positions (making simple RESHAPE impossible). In order to compare
+% and calculate using such data, it can be desireable to have the data
+% in 2D matrix format. GRIDSORT does this by sorting the data into its
+% appropriate gridcells of the full 2D grid spanned by the original
+% grid. This is both faster and more clean cut than attempting any
+% interpolation to fix the problem.
+% 
+% [LO,LA,Z] = gridsort(lon,lat,z,LO,LA)
+% 
+% lon,lat = vectors describing lon and lat position of gridded data.
+% z       = ND array of original data with space as first dimension
+%           (corresponding lon and lat), and any other
+%           dimension following (e.g., time.
+% LO,LA   = 2D matrix describing the grid. 
+%           Give input if known a priori 
+
+% See also INTERSECT MESHGRID
+
+error(nargchk(3,5,nargin));
+if nargin<4, 
+  [LO,LA]=meshgrid(min(lon):min(diff(lon)):max(lon),...
+		   min(lat):min(diff(lat)):max(lat)); % target grid
+end
+
+[M,N]=size(LO); O=size(z,2);
+[ans,IA]=intersect([LA(:),LO(:)],[lat,lon],'rows'); %  C = A(IA)
+Z=nans(M*N,O); Z(IA,:)=z; Z=reshape(Z,[M,N,O]);
