@@ -5,6 +5,6 @@
 # 
 #   CHANGES are made every now and then.
 # 
-#   CROSSREFERENCES are used a lot, so a download of it all is recommended. Downloading just one function might send you back here searching for it's required functions.
+#   CROSSREFERENCES are used a lot, so a download of it all is recommended. Downloading just one function might send you back here searching for its required functions.
 # 
 #   Good luck!
