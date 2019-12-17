@@ -10,7 +10,7 @@ function [sig_corr,Nstar] = echelton(x,y,alpha)
 % sig_corr = significance levels for the correlations
 % Nstar    = effective degrees of freedom
 %
-% The significance level for cross-regression, you can calculate
+% The significance level for cross-regression you can calculate
 % yourself just like you calculate the regression itself, by
 % sig_reg=sig_corr.*nanstd(y)./nanstd(x);
 %
@@ -32,9 +32,6 @@ function [sig_corr,Nstar] = echelton(x,y,alpha)
 % Based on A. B. Sandoe and H. R. Langehaug's code for the method.
 % 
 % See also ETREND ITS AUTOCORR
-
-%Time-stamp:<Last updated on 14/04/11 at 14:02:02 by even@nersc.no>
-%File:</Users/even/matlab/evenmat/echelton.m>
 
 error(nargchk(2,3,nargin));
 if nargin<3 | isempty(alpha),	alpha=0.05;	end

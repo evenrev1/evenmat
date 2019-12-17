@@ -27,9 +27,6 @@ function h=stripes(T,x0,ax,col,a)
 %
 % See also PATCH
 
-%Time-stamp:<Last updated on 06/06/22 at 16:38:31 by even@nersc.no>
-%File:</home/even/matlab/evenmat/stripes.m>
-
 if nargin<5 | isempty(a),	a=gca;			end
 if nargin<4 | isempty(col),	col=[.9 .9 .9];		end
 if nargin<3 | isempty(ax),	ax='x';			end
@@ -45,7 +42,7 @@ else	error('The axis-character must be ''x'' or ''y''!');
 end
 
 os=findobj(a,'tag','stripes');	% old stripes present?
-if ischar(T) & any(os)
+if ischar(T) & ~isempty(os)
   switch T
    case 'off',		delete(os); return
    case 'update',	get(os,'userdata'); 

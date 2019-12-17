@@ -25,15 +25,11 @@ function scanplot(a,key)
 %
 % See also ZOOM VIEW
 
-%Time-stamp:<Last updated on 03/06/18 at 11:34:49 by even@gfi.uib.no>
-%File:</local/janeven/matlab/evenmat/scanplot.m>
-
 error(nargchk(0,2,nargin));
 if nargin<1|isempty(a),         a=gca;          end
 
 fh=get(a(1),'parent'); 
 sh=findobj('parent',a,'tag','stripes'); % Any STRIPES on this axis?
-
 if nargin<2|isempty(key),       key=get(fh,'CurrentCharacter'); end
 
 if ~any(strcmp('scanplot',get(get(fh,'children'),'tag')))
@@ -95,7 +91,7 @@ end
 
 set(a,'xlim',xlim);             set(a,'ylim',ylim);     
 
-if any(sh), stripes update; end                         % update stripes 
+if ~isempty(sh), stripes update; end                         % update stripes 
 
 if any(findstr(get(a,'tag'),'dateaxis'))		% update datestr
   get(a,'userdata');  dateaxis(ans.dateform,ans.axis); 

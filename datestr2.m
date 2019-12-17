@@ -18,11 +18,9 @@ function s=datestr2(n,dateform)
 %		 104		'dd/mm/yy'		'21/11/69'
 %		 105		'd/m'			'9/8' (not 09/08)
 %		 106		'd/m-yy'		'9/8-70' 
+%		 107		'dd.mm.yyyy'		'09.08.1970' 
 %
 % See also DATENUM2 DATENUM, DATEAXIS, DATESTR, DATEVEC, NOW, DATE
-
-%Time-stamp:<Last updated on 03/06/29 at 17:40:38 by even@gfi.uib.no>
-%File:</home/janeven/matlab/evenmat/datestr2.m>
 
 switch dateform
  case 100
@@ -49,6 +47,11 @@ switch dateform
   dd=datestr(n,7); dd=str2num(dd); dd=num2str(dd);
   yy=datestr(n,11);
   s=strcat(dd,'/',mm,'-',yy);
+ case 107
+  mm=datestr(n,5); %mm=str2num(mm); mm=num2str(mm,'%2.0f');
+  dd=datestr(n,7); %dd=str2num(dd); dd=num2str(dd,'%2.0f');
+  yyyy=datestr(n,10);
+  s=strcat(dd,'.',mm,'.',yyyy);
  otherwise
   s=datestr(n,dateform);
 end

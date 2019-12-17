@@ -23,9 +23,6 @@ function h=tallibing(x,y,n,size,color,opt)
 %
 % See also TEXT TALLIBING3
 
-%Time-stamp:<Last updated on 06/05/02 at 17:14:45 by even@nersc.no>
-%File:</home/even/matlab/evenmat/tallibing.m>
-
 error(nargchk(3,6,nargin));
 if nargin < 6 | isempty(opt),	opt='';		end
 if nargin < 5 | isempty(color), color='w';	end
@@ -39,7 +36,7 @@ x=x(:); y=y(:); n=n(:);
 n=round(n);
 
 oldtall=findobj(get(gca,'children'),'Tag','tallibing');
-if any(oldtall), delete(oldtall); end
+if ~isempty(oldtall), delete(oldtall); end
 
 if any(findstr(opt,'m_map')),   [x,y]=m_ll2xy(x,y); end	% OPTION CHECK
 

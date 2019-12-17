@@ -61,10 +61,16 @@ for i=1:M                               % the running mean
 end
 n=n(:);
 
+% remove any nans originally
+
+% fix this!
+%find(t(1)+w<=tg &  tg<=t(end)-w);       % cut off the ends
 find(t(1)+w<=tg &  tg<=t(end)-w);       % cut off the ends
 tt=tg(ans,:);
 yy=yy(ans,:);
 n=n(ans);
+
+
 
 if tdim==2,		tt=tt'; end	% ensure column vector out
 if ydim==2,		yy=yy'; end	% ensure column vector out
@@ -72,7 +78,7 @@ if ydim==2,		yy=yy'; end	% ensure column vector out
 % a plot
 if nargout==0
   fig runmean 3;clf;%'empirical year',
-  plot(t,y,'k-o',tt,yy,'r-');
+  plot(t,y,'ko-',tt,yy,'rd-');
   %plot(t,y,'.',tt,yy,'r-','linewidth',2);
   legend('data input','filtered series',0);
   grid on; 

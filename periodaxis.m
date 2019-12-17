@@ -11,8 +11,8 @@ function periodaxis(label,ax,periods)
 %
 % See also DATEAXIS
 
-%Time-stamp:<Last updated on 01/01/30 at 11:22:37 by even@gfi.uib.no>
-%File:<d:/home/matlab/periodaxis.m>
+%Time-stamp:<Last updated on xxx at yyyy by even@nersc.no>
+%File:</Users/a21627/matlab/evenmat/periodaxis.m>
 
 error(nargchk(0,3,nargin));
 %if nargin < 3 | isempty(scalefactor)
@@ -40,7 +40,7 @@ if nargin<3 | isempty(periods)
   periods=[max(periods)*2 periods]; % two extra
 end
 
-frequencies=1./periods;
+frequencies=sort(1./periods);
 
 eval(['set(gca,''',ax,'Tick'',frequencies,''',ax,'TickLabel'',periods);'])
 

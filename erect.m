@@ -21,9 +21,9 @@ if nargin < 2 | isempty(options)
   options='';
 end
 
-if findstr(options,'t')   % fill in with points between corners
-  hor=lim(1):(lim(2)-lim(1))/50:lim(2);
-  ver=lim(3):(lim(4)-lim(3))/50:lim(4);
+if findstr(options,'t')   % fill in with 100 points between corners
+  hor=lim(1):(lim(2)-lim(1))/100:lim(2);
+  ver=lim(3):(lim(4)-lim(3))/100:lim(4);
   x=[hor lim(2).*ones(1,length(ver)) fliplr(hor) lim(1).*ones(1,length(ver))];
   y=[lim(3).*ones(1,length(hor)) ver lim(4).*ones(1,length(hor)) fliplr(ver)];
 else                      % jump from corner to corner

@@ -1,3 +1,4 @@
+
 function figfile(varargin)
 % FIGFILE       printing function for FIG-figures
 % Prints named figure(s) to eps-file(s) with same name(s), or to
@@ -132,6 +133,9 @@ for i=1:length(name),                   % one by one
   else
     fprintf('Nonexisting figure ''%s'' !\n',char(name(i)));
   end
+
+close
+
 end
 
 % for adding tiff preview:

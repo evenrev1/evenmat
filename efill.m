@@ -1,9 +1,9 @@
-function ZG = efill(Z,opt);
+function VG = efill(V,opt);
 % EFILL	Interpolation on NaN datapoints.
 % 
-% ZG = efill(Z,opt)
+% VG = efill(V,opt)
 %
-% Z	= input matrix
+% V	= input matrix
 % opt	= options for interpolation method (default='linear'; see GRIDDATA)
 %
 % Uses griddata to simply interpolate to fill NaNs in a matrix.
@@ -13,10 +13,22 @@ function ZG = efill(Z,opt);
 error(nargchk(1,2,nargin));
 if nargin<2 | isempty(opt),	opt='linear';	end
 
-[X0,Y0]=meshgrid(1:size(Z,2),[1:size(Z,1)]');
-ZNN=Z(~isnan(Z));
-YNN=Y0(~isnan(Z));
-XNN=X0(~isnan(Z));
-ZG = griddata(XNN,YNN,ZNN,X0,Y0,opt);
+D=size(V);
+switch ndims(V)
+ case 2
+  %[X0,Y0]=meshgrid(1:size(V,2),[1:size(V,1)]');
+  [X0,Y0]=meshgrid(1:D(2),[1:D(1)]');
+  VNN=V(~isnan(V));
+  YNN=Y0(~isnan(V));
+  XNN=X0(~isnan(V));
+  VG = griddata(XNN,YNN,VNN,X0,Y0,opt);
+ case 3
+  [X0,Y0,Z0]=meshgrid(1:D(2),[1:D(1)]',1:D(3));
+  VNN=V(~isnan(V));
+  ZNN=Z0(~isnan(V));
+  YNN=Y0(~isnan(V));
+  XNN=X0(~isnan(V));
+  VG = griddata(XNN,YNN,ZNN,VNN,X0,Y0,Z0,opt);
+end
 
 
