@@ -1,5 +1,5 @@
 # evenmat
-#   Even's assorted matlab-functions)
+#   Even's assorted matlab-functions.
 #
 #   Most of these files are my own specialized M-files, functions that I made when I felt it needed. Some are quite neat, some might be obsolete, others even incomplete... In short, this is just my local Matlab directory with all it's contents. However you might need some of it if you want to run other functions of mine.
 # 
