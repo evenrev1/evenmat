@@ -10,8 +10,11 @@ function crop(m,a)
 % Some times printing to file leaves whitespace around a plot. To remove
 % this, CROP wraps the figure (window) as tightly as you wish around the
 % chosen axes without changing the size of the axes. The choice of margins
-% is a matter of trial and error. Printing will only print whats inside the
+% is a matter of trial and error. Printing will only print what's inside the
 % figure (window), so the problem should be solved. 
+%
+% Resize figure window before using crop, if you wish to do so. (Resizing
+% window seems to affect the print resolution with jpeg.)
 %
 % Both figure and axes are left with 'Units' set to 'pixels', they have
 % to to be printed properly.
