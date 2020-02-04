@@ -47,8 +47,8 @@ set([a(:);f],'units','pixels');			% measure both in pixels
 N=length(a);
 
 if N<2
-  ap=get(a,'Position')				% get original positions
-  fp=get(f,'Position') 
+  ap=get(a,'Position');				% get original positions
+  fp=get(f,'Position'); 
   set(f,'position',[fp(1:2) ap(3:4)+m(1:2)+m(3:4)]);% figure
   set(a,'position',[m(1:2) ap(3:4)]);			    % axes	
 else
