@@ -1,12 +1,13 @@
-function files = edir(maindir,extension,keepfile,newfiles)
+function files = edir(maindir,extension,mindepth,keepfile,newfiles)
 % EDIR	finds all specified files in a directory and subdirectories.
 % 
-% files = edir(maindir,extension,keepfile,newfiles)
+% files = edir(maindir,extension,mindepth,keepfile,newfiles)
 % 
 % maindir   = string of full path to the directory where sought files
 %             and directories of such are located (no end slash). 
 % extension = string of filename extension of specific files 
 %             (e.g., nc).  Use * for any files.
+% mindepth  = 
 % keepfile  = logical on whether to keep the textfile of found paths.
 % newfiles  = logical on whether to compare with old textfile of
 %	      found paths and only output the new files. The textfile
@@ -22,8 +23,11 @@ function files = edir(maindir,extension,keepfile,newfiles)
 %
 % See also MKDIR DIR LS EMKDIR
 
-if nargin<4|isempty(newfiles), newfiles=logical(0); else newfiles=logical(newfiles); end
-if nargin<3|isempty(keepfile), keepfile=logical(0); else keepfile=logical(keepfile); end
+if nargin<5|isempty(newfiles), newfiles=logical(0); else newfiles=logical(newfiles); end
+if nargin<4|isempty(keepfile), keepfile=logical(0); else keepfile=logical(keepfile); end
+if nargin<3|isempty(mindepth), mindepth=0; end
+if nargin<2|isempty(extension), extension='*'; end
+if nargin<1|isempty(maindir), maindir=pwd; end
 
 if newfiles
   prev=textread([extension,'files.txt'],'%s');
@@ -31,8 +35,9 @@ else
   newfiles=logical(0);
 end
 
-eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth 0 > ',extension,'files.txt'])
-files=textread([extension,'files.txt'],'%s');
+%eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth 0 > ',extension,'files.txt'])
+eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
+files=textread([extension,'files.txt'],'%s','delimiter','');
 
 if ~keepfile, delete([extension,'files.txt']); end
 

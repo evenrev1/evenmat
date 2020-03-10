@@ -1,11 +1,20 @@
 function h = profcolor(X,Y,Z)
-% PROFCOLOR	Plots columns of data with non-uniform depths and NaNs
+% PROFCOLOR	Plots columns of data with non-uniform depths and NaNs.
 % 
 % h = profcolor(X,Y,Z)
 % 
+% X	= depth matrix 
+% Y	= column position matrix. E.g., position of profiles or
+%         simply subscripts for columns.   
+% Z	= data values at X,Y.
+%
+% h	= handle to a surface object, made by PCOLOR.
+%
+% All inputs must be of same size.
 % 
-% 
-% See also PCOLOR
+% See also PCOLOR EPCOLOR
+
+% evenrev1@me.com https://github.com/evenrev1
 
 % figure(11); clf; 
 
@@ -29,7 +38,7 @@ for j=1:sX(2)
     end
     [g,g_y]=buildgrid(y); %g_y=[g_y;NaN];  
     %g_y(ans(end)+1)=y(ans(end))+y(ans(end))-g_y(ans(end-1));
-    pcolor(g_x([0 1]+j),repmat(g_y(1:end-1),1,2),repmat(z,1,2));
+    h=pcolor(g_x([0 1]+j),repmat(g_y(1:end-1),1,2),repmat(z,1,2));
     %pcolor(X(1,[0 1]+j)-diff(X(1,[0 1]+j))/2,repmat(g_y,1,2),repmat(z,1,2));
     %pcolor(repmat(X(:,j),1,2),repmat(g_y,1,2),repmat(z,1,2));
     %pcolor([0.5:1.5]+j,repmat(g_d,1,2),repmat([OX(1:9,301+j);NaN],1,2));
