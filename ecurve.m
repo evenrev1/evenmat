@@ -89,18 +89,18 @@ function [h,coord]=ecurve(varargin)
 % to delete(<handles>) the old curves.
 %
 % RELATED FUNCTIONS: 
-%         One of the following functions is required for arrow-plot:
-%         1) ARROW is part of MATDRAW, obtained at
-%            ftp://ftp.mathworks.com/pub/contrib/v5/graphics/matdraw/
-%	  2) MY_ARROW by Tore Furevik is obtained at
-%	     www.gfi.uib.no/~even/matlab
+%
+%         ARROW is part of MATDRAW, obtained at
+%         ftp://ftp.mathworks.com/pub/contrib/v5/graphics/matdraw/
 %
 %         M_MAP users can find the line's geographical positions as the
 %         matrix [lon;lat] in get(h,'userdata').
-% 
+%
 %         The bezier-algorithm included was kindly provided by Nicolas de
 %         Dreuille (Nicolas.de-Dreuille@insa-rouen.fr) with explanation
 %         on http://servasi.insa-rouen.fr/~ndreuill/projetananum/
+% 
+%	  Included my_arrow was kindly provided by Tore Furevik.
 %
 % PROBLEMS: 
 %	  - On non-linear axes rulers look strange, but drawing works OK
@@ -108,19 +108,18 @@ function [h,coord]=ecurve(varargin)
 %	  - One-patch arrows gets ugly at sharp bends and when crossing
 %  	    itself
 %
-% EXAMPLE:  figure; clf; axes;
+% EXAMPLE:  On any M_MAP of yours try the following line by line.
 %           [h,coord] = ecurve('linewidth',20,'color','r');
-%	    ecurve('data',coord,'width',15,...
-%                  'patch','edgecolor','y','baseangle',120);
-%	    ecurve('data',coord,'width',6,'linestyle','--',...
-%		   'edgecolor','k','facecolor','g','patch','baseangle',70);
+%	    ecurve('data',coord,'width',15,'patch','edgecolor','y','baseangle',120);
+%	    ecurve('data',coord,'width',6,'linestyle','--','edgecolor','k','facecolor','g','patch','baseangle',70);
 %
-% See also ARROW MY_ARROW M_MAP GINPUT
+% See also ARROW M_MAP GINPUT
 
 % Revision history:
 % 25/8-03 JEN	Added ability to input coordinates for more than
 %		one ecurve, as well as grabbing ecurves from other
 %		axes and direct input of file with ecurve data.
+% 4/6-20 JEN	Included Tore Furevik's my_arrow as internal function.
 
 M=length(varargin);
 for i=1:M				% Ensure all lower case input
@@ -584,3 +583,74 @@ end
 % and delete it after you get the properties.  Of course, this
 % doesn't work for an arrow object -- it would just return the patch
 % properties. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [h1,h2]=my_arrow(X,Y,W,L,S,C); 
+% function [h1,h2]=my_arrow(X,Y,W,L,S,C);
+%
+% function to draw arrows, streamlines etc. 
+%
+% X   : X-data (vector)
+% Y   : Y-data (vector, same length as X)
+% W   : Linewidth of arrows (in points)
+% L   : Length of arrow head (in points)
+% S   : Line style property ('-','--', etc)
+% C   : Color of arrow
+% 
+% h1,h2 : handles to arrow and arrowhead 
+%
+% Note that in order to get correct angles on arrows, the axis system
+% must be defined before my_arrow is used.
+%
+% made by Tore Furevik, Geophysical Institute, University of Bergen.
+% email: tore@gfi.uib.no                             Date 19/11-1998.
+%
+% A short demo-program:
+% col=colormap; max=length(col); i=sqrt(-1);
+% clf; axis([-max-10 max+10 -max-10 max+10]);
+% for j=1:max,
+% my_arrow([0 j*real(exp(i*j/5))],[0 j*imag(exp(i*j/5))],...
+%		   2*j/max,.1*j/max,'-',col(j,:)); end; axis off;
+% my_arrow(-50:50,50*tanh([-50:50]/50),5,.1,'--','k');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+error(nargchk(2,6,nargin));
+if (nargin < 6)|isempty(C),	C='k';	end
+if (nargin < 5)|isempty(S),	S='-';	end
+if ((nargin < 4)|isempty(L))&((nargin < 3)|isempty(W)),	W=1; L=10;
+elseif ((nargin < 4)|isempty(L)),			L=6*W;
+elseif ((nargin < 5)|isempty(W)),			W=ceil(L/6);
+end
+  
+% 1) We need axes aspect ratio to get right scaling:
+% xlim=get(gca,'XLim'); ylim=get(gca,'YLim');
+% aspect=(xlim(2)-xlim(1))/(ylim(2)-ylim(1));
+
+% E1) Transform data-units to point-units
+[x,y]=xy2pt(X,Y); aspect=1;
+
+% 2) Estimate arrow angle in plot from the last two positions:  
+Head=zeros(1,3); 
+last_position=x(end)+i*y(end);
+prev_position=x(end-1)+i*y(end-1);
+arrow_last_change=last_position-prev_position;
+
+% 3) Estimate arrow head by complex algorithms:
+arrow_angle=arrow_last_change/abs(arrow_last_change);
+dx=real(arrow_angle); dy=imag(arrow_angle);
+Head(1)=last_position+L/3*...
+   (i*dx/aspect-dy*(1+(aspect-1)*abs(cos(angle(arrow_angle)))));
+Head(2)=last_position+L*...
+   (1+(1/aspect-1)*abs(sin(angle(arrow_angle))))*(dx+i*dy);
+Head(3)=last_position+L/3*...
+   (-i*dx/aspect+dy*(1+(aspect-1)*abs(cos(angle(arrow_angle)))));
+
+%f=L*(1+(1/aspect-1)*abs(sin(angle(arrow_angle))))*(dx+i*dy);
+%Head=Head-f;
+
+% E3b) Transform back to data units
+[HX,HY]=xy2pt(real(Head),imag(Head),'inverse');
+
+% 4) Adding arrows to existing plot:
+hold on; h1=plot(X,Y,S); set(h1,'Linewidth',W,'Color',C); 
+h2=fill(HX,HY,C); set(h2,'Edgecolor',C);
+hold off;
