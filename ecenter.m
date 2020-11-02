@@ -48,10 +48,10 @@ while ~all_inside_true
   K=inpolygon(J,I,je,ie);
   J=J(K);I=I(K);
   K=sub2ind([M,N],I,J);
-
+  
   % Test if everything inside is true now:
-  all_inside_true=all(R(K));
-
+  all_inside_true=all(R(K),'all')|nnz(R(K))==1;
+ 
   % Change the logical matrix:
   ii=setdiff(1:M*N,K);	% Points outside ..
   R(ii)=0;		% .. are set to false

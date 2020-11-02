@@ -5,13 +5,17 @@ function files = edir(maindir,extension,mindepth,keepfile,newfiles)
 % 
 % maindir   = string of full path to the directory where sought files
 %             and directories of such are located (no end slash). 
+%             (default=PWD). 
 % extension = string of filename extension of specific files 
-%             (e.g., nc).  Use * for any files.
-% mindepth  = 
-% keepfile  = logical on whether to keep the textfile of found paths.
+%             (e.g., 'nc'). (Default= '*' for any files.)
+% mindepth  = Mindepth argument for find to use. 
+%             (default=0). 
+% keepfile  = logical on whether to keep the textfile of found paths
+%             (default=0). 
 % newfiles  = logical on whether to compare with old textfile of
 %	      found paths and only output the new files. The textfile
 %	      of paths will be expanded or remain complete.
+%             (default=0). 
 %
 % files     = cell array with full paths to each file.
 % 
@@ -43,6 +47,3 @@ if ~keepfile, delete([extension,'files.txt']); end
 
 if newfiles,  files=setxor(prev,files); end
 
-
-% maindir   = string of full path to the main directory where
-%             directories of sought files are located (no end slash).

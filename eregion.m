@@ -30,8 +30,8 @@ function [lo,la,da] = eregion(lon,lat,data,region)
 
 error(nargchk(3,4,nargin));
 [M,N]=size(data);
+global MAP_PROJECTION MAP_VAR_LIST MAP_COORDS
 if nargin<4 | isempty(region)
-  global MAP_PROJECTION MAP_VAR_LIST MAP_COORDS
   if ~isempty(MAP_VAR_LIST)
     region=[MAP_VAR_LIST.longs,MAP_VAR_LIST.lats];+[-2 2 -1 1];
   else
@@ -71,5 +71,8 @@ if nargout==0
   end
   subplot 131; pcolor(lon,lat,data); xlabel lon; ylabel lat; title input
   subplot 132; pcolor(lo,la,da); xlabel lo; ylabel la; title output
-  subplot 133; m_pcolor(lo,la,da); m_grid; m_coast; title output
+  if ~isempty(MAP_VAR_LIST)
+    subplot 133; m_pcolor(lo,la,da); m_grid; m_coast; title output
+  end
 end
+
