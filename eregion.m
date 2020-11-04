@@ -38,7 +38,7 @@ error(nargchk(3,4,nargin));
 global MAP_PROJECTION MAP_VAR_LIST MAP_COORDS
 if nargin<4 | isempty(region)
   if ~isempty(MAP_VAR_LIST)
-    region=[MAP_VAR_LIST.longs,MAP_VAR_LIST.lats];+[-2 2 -1 1];
+    region=[MAP_VAR_LIST.longs,MAP_VAR_LIST.lats]+[-4 4 -4 4];
   else
     error('Region input not given and m_map has not been initialised! (Use M_PROJ.)'); 
   end 
