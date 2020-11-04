@@ -3,15 +3,15 @@ function [lo,la,da] = eregion(lon,lat,data,region)
 % 
 % [lo,la,da] = eregion(lon,lat,data,region)
 % 
-% lon,lat = The positions of the input gridded data.
-% data    = The values of the input gridded data.
-% region  = If an m_map has been initiated, this input is
+% lon,lat = Matrices of the positions of the input gridded data.
+% data    = Matrix of the values of the input gridded data.
+% region  = If an m_map has been initiated with M_PROJ, this input is
 %           obsolete. Otherwise a four-element frame of region of 
 %           interest, [west_lon east_lon south_lat north_lat], can be
 %           input here. 
 % 
-% lo,la   = The altered positions of the input gridded data.
-% da      = The altered values of the input gridded data.
+% lo,la   = Matrices of the altered positions of the input gridded data.
+% da      = Matrix of the altered values of the input gridded data.
 %
 % If no output is requested simple plots will be shown. Try this
 % first, to validate the method.
@@ -26,7 +26,12 @@ function [lo,la,da] = eregion(lon,lat,data,region)
 % region by changing the longitudes, and then setting all values outside
 % your region to NaN.
 % 
-% See also PCOLOR M_PCOLOR M_PROJ ERECT
+% A gentle reminder: Both pcolor and m_pcolor uses the positions of
+% the grid cells as the lower left corner of the plotted cells, so
+% plotted cells are shited norteastward of their real
+% positions. Consider using EPCOLOR.
+%
+% See also PCOLOR M_PCOLOR M_PROJ ERECT EPCOLOR
 
 error(nargchk(3,4,nargin));
 [M,N]=size(data);
@@ -48,7 +53,7 @@ end
 lo=lon; 
 
 % First force the input longitudes to comply to -180- to 180 numbering:
-lo>180; if any(ans,'all'), lo(ans)=lo(ans)-360; end
+lo>180; if any(any(ans)), lo(ans)=lo(ans)-360; end
 
 % Find where the 'jump' is and move if necessary.
 mid=(region(1)+region(2))/2; % The longitude farthest away from the region
