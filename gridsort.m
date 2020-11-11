@@ -1,4 +1,4 @@
-function [Z,LO,LA] = gridsort(lon,lat,z)
+function [Z,LO,LA] = gridsort(lon,lat,z,LO,LA)
 % GRIDSORT sorts gridded but not 2D shaped input data into 2D. 
 %
 % Some times even gridded data are given as vectors and not matrices,
@@ -42,10 +42,12 @@ if nargin<4, % create target grid
   do=min(diff(unique(lon)));
   da=min(diff(unique(lat)));
   [LO,LA]=meshgrid(min(lon(:)):do:max(lon(:)),min(lat(:)):da:max(lat(:))); 
+else
+  [LO,LA]=meshgrid(LO,LA); 
 end
 
 D=size(z);
-if ~isvec(lon) | ~isvec(lat) | length(lon)~=length(lat) | D(1)~=length(lat)
+if D(1)>1 & (~isvec(lon) | ~isvec(lat)) | length(lon)~=length(lat) | D(1)~=length(lat) 
   error('Input data must match!')
 end
 
