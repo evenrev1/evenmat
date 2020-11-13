@@ -1,7 +1,7 @@
-function files = edir(maindir,extension,mindepth,keepfile,newfiles)
+function [files,names] = edir(maindir,extension,mindepth,keepfile,newfiles)
 % EDIR	finds all specified files in a directory and subdirectories.
 % 
-% files = edir(maindir,extension,mindepth,keepfile,newfiles)
+% [files,names] = edir(maindir,extension,mindepth,keepfile,newfiles)
 % 
 % maindir   = string of full path to the directory where sought files
 %             and directories of such are located (no end slash). 
@@ -18,6 +18,7 @@ function files = edir(maindir,extension,mindepth,keepfile,newfiles)
 %             (default=0). 
 %
 % files     = cell array with full paths to each file.
+% names	    = cell array with just the names of each file.
 % 
 % This function utilizes the unix command FIND to recursively find
 % files with regular expressions matching the given extension. It
@@ -41,7 +42,14 @@ end
 
 %eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth 0 > ',extension,'files.txt'])
 eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
+
 files=textread([extension,'files.txt'],'%s','delimiter','');
+
+if nargout==2
+  F=textread([extension,'files.txt'],'%s','delimiter',filesep);
+  f=contains(F,['.',extension]);
+  names=F(f);
+end
 
 if ~keepfile, delete([extension,'files.txt']); end
 
