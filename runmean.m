@@ -80,7 +80,7 @@ if nargout==0
   fig runmean 3;clf;%'empirical year',
   plot(t,y,'ko-',tt,yy,'rd-');
   %plot(t,y,'.',tt,yy,'r-','linewidth',2);
-  legend('data input','filtered series',0);
+  legend('data input','filtered series');
   grid on; 
   try, scanplot; catch, zoom xon; end
   title([ 'boxwidth = ',num2str(2*w)]);

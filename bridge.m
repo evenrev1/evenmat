@@ -56,8 +56,8 @@ end
 if nargout==0 & length(D)==2 & D(2)==1
   fig bridge 4;clf;
   h=plot(1:D(1),Y,'k.--',1:D(1),X,'k-o');
-  legend(...%h([0:2]*N+1),...
-	 'interpolated series','data input',0);
+  %legend(...%h([0:2]*N+1),...
+  legend('interpolated series','data input');
   grid on; %zoom xon;
   scanplot;
   title('Interpolation by BRIDGE');
