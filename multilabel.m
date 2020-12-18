@@ -15,7 +15,7 @@ function h=multilabel(str,pos,a,sep,varargin)
 % The inputs described here can be followed by parameter/value pairs to
 % specify additional properties of the text.
 %
-% See also TITLE XLABEL
+% See also TITLE XLABEL SUBPLOT SUBLAY CARTOON
 
 % Places an invisible axis at the desired position, and adds a
 % text-object in its origo. Rotates as necessary.

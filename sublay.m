@@ -14,10 +14,7 @@ function [m,n]=sublay(O)
 %               figure window and its fullpage landscape printout:
 %               [m,n]=sublay(O); subplot(m,n,1);
 %
-% See also SUBPLOT
-
-%Time-stamp:<Last updated on 06/12/13 at 21:43:33 by even@nersc.no>
-%File:</home/even/matlab/evenmat/sublay.m>
+% See also SUBPLOT MULTILABEL CARTOON
 
 error(nargchk(1,1,nargin));
 if ~issingle(O) | ~isint(O) | O<1

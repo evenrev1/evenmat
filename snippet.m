@@ -16,10 +16,11 @@ function s=snippet(x,filename,opt)
 %            available characters and their replacements are:
 %            '_' -> '-' (underscore is often problematic)
 %	     ' ' -> ''  (removal of all spaces)
+%            'deblank' -> Removes trailing blanks
+% 
+% s        = The resulting string, as is also written to file
 %
-% s.       = The resulting string, as is also written to file
-%
-% See also MAT2TAB STRING
+% See also MAT2TAB STRING DEBLANK 
 
 error(nargchk(1,3,nargin));
 if nargin <3 | isempty(opt), opt=''; end
@@ -55,6 +56,7 @@ end
 s=ss;
 
 % Optional replacements
+if contains(opt,'deblank'),s=deblank(s);end
 if contains(opt,'_'),findstr(s,'_'); s(ans)='-';end
 if contains(opt,' '),findstr(s,' '); s(ans)='';end
 
