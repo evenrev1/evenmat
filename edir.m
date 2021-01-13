@@ -41,7 +41,8 @@ else
 end
 
 %eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth 0 > ',extension,'files.txt'])
-eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
+%eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
+eval(['!find ',' ',maindir,filesep,'*',' -mindepth ',int2str(mindepth),' -regex ''.*.',extension,'''',' > ',extension,'files.txt'])
 
 files=textread([extension,'files.txt'],'%s','delimiter','');
 
