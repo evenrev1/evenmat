@@ -35,8 +35,8 @@ function [h1,h0]=ecolorbar(D,L,label,W,hand,varargin)
 % to make colorbar appearance similar to the contourplot, when it is
 % different from the default.
 %
-% h1,h0	= output of handles to the colorbar and to the graph(s)
-%	  respectively
+% h1,h0	= output of handles to the colorbar and to the graph(s),
+%	  respectively.
 %
 % NOTE1 : There is no opportunity to give single valued contourspecification
 %         (the number of contours). I haven't gotten so far as to make that
