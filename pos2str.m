@@ -15,13 +15,10 @@ function [lonstr,latstr]=pos2str(lon,lat,accuracy)
 %
 % See also DEG2NUM DEG2CART
 
-%Time-stamp:<Last updated on 06/12/13 at 21:43:27 by even@nersc.no>
-%File:</home/even/matlab/evenmat/pos2str.m>
-
 error(nargchk(2,3,nargin));                              % input-tests
 if ~isnumeric(lon) | ~isnumeric(lat)
   error('Numeric input only!');
-elseif ismatrix(lon) | ismatrix(lat)
+elseif ismat(lon) | ismat(lat)
   error('Single or vector input only!');
 elseif any(lon<-180) | any(180<lon) | any(lat<-90) | any(90<lat)
   error('Bad numbers (outside -180<=lon<=180 & -90<=lat<=90)!');

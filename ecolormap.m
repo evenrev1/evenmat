@@ -12,7 +12,7 @@ function [cmap,cont] = ecolormap(cont,cm1,cm2,cont0)
 %	  containing an RGB-colourmap. 
 % cm2	= Same as cm1, but for the second part of cont. (Optional.)
 %	  If provided, cm1 is used for the first part of cont, and cm2
-%	  for the latter.  
+%	  for the second part.  
 %	  (See below for details.)  
 % cont0 = In case of uniform cont, but two colourmaps, the contour
 %         level between the two maps can be given as single value
@@ -48,11 +48,11 @@ function [cmap,cont] = ecolormap(cont,cm1,cm2,cont0)
 %
 % COLOURMAP SPECIFICATIONS can be easily given as known names of
 % existing colourmaps, such as those of CMOCEAN (see CMOCEAN) or
-% M_COLMAP (see M_COLMAP) or the standard Matlab maps (see
-% GRAPH3D). This is the sequence of priority in case of conflict of
-% naming.  You can also input your own RGB matrices, but these must have
-% the exact same number of colours (rows) as the number of increments in
-% the part of cont they are assigned to.
+% M_COLMAP (see M_COLMAP) or COLORCET (see COLORCET) or the standard
+% Matlab maps (see GRAPH3D). This is the sequence of priority in case of
+% conflict of naming.  You can also input your own RGB matrices, but
+% these must have the exact same number of colours (rows) as the number
+% of increments in the part of cont they are assigned to.
 %
 % If only one (or no) colormap is input, it is assumed that it (or the
 % default, parula) should cover the whole range of cont. It is only the
@@ -86,8 +86,8 @@ function [cmap,cont] = ecolormap(cont,cm1,cm2,cont0)
 
 % ------------------------------------------------------------------------
 % A list of colourmaps is not provided in the help text, for
-% compatibility with further development in M_COLORMAP and
-% CMOCEAN. Hence also, the use of try/catch. But here are the names as
+% compatibility with further development in M_COLORMAP and CMOCEAN and
+% COLORCET. Hence also, the use of try/catch. But here are the names as
 % of 2019.03.06:
 %
 % CMOCEAN:
@@ -117,6 +117,21 @@ function [cmap,cont] = ecolormap(cont,cm1,cm2,cont0)
 %   'green' : a precentually useful green shading
 %   'diverging' : a blue/red diverging colormap
 %
+% COLORCET:
+% names:  'L1' - 'L19'  for linear maps
+%         'D1' - 'D13'  for diverging maps
+%         'C1' - 'C9'   for cyclic maps
+%         'R1' - 'R3'   for rainbow maps
+%         'I1' - 'I3'   for isoluminant maps
+% maps for the red-green colour blind (Protanopia/Deuteranopia)
+%         'CBL1' - 'CBL4' 
+%         'CBD1' - 'CBD2' 
+%         'CBC1' - 'CBC2' 
+% maps for the blue-yellow colour blind (Tritanopia)
+%         'CBTL1' - 'CBTL4' 
+%         'CBTD1' 
+%         'CBTC1' - 'CBTC2' 
+% 
 % MATLAB:
 % parula     - Blue-green-orange-yellow color map
 % hsv        - Hue-saturation-value color map.
@@ -197,9 +212,13 @@ if strcmp(cm2,'hold')
 	cm=m_colmap(cm1,N);		% Try using M_MAP
       catch
 	try
-	  eval(['cm=',cm1,'(N);']);	% Use regular matlab colormaps
+	  cm=colorcet(cm1,'N',N);	% Try using COLORCET
 	catch
-	  cm=parula(N);			% In case of nonsense input
+	  try
+	    eval(['cm=',cm1,'(N);']);	% Try built in functions or regular matlab colormaps
+	  catch
+	    cm=parula(N);		% In case of nonsense input
+	  end
 	end
       end
     end
@@ -216,35 +235,43 @@ else
     end
   else			
     try 
-      cm1=cmocean(cm1,n(1));		% Try using CMOCEAN
+      cm1=cmocean(cm1,n(1));			% Try using CMOCEAN
     catch  
       try
-	cm1=m_colmap(cm1,n(1));		% Try using M_MAP
+	cm1=m_colmap(cm1,n(1));			% Try using M_MAP
       catch
 	try
-	  eval(['cm1=',cm1,'(n(1));']);	% Use regular matlab colormaps
+	  cm1=colorcet(cm1,'N',n(1));		% Try using COLORCET
 	catch
-	  cm1=cool(n(1));		% In case of nonsense input
+	  try
+	    eval(['cm1=',cm1,'(n(1));']);	% Try built in functions or regular matlab colormaps
+	  catch
+	    cm1=cool(n(1));			% In case of nonsense input
+	  end
 	end
       end
     end
   end
   % ------- Second part ---------------------------------------------------
-  if isnumeric(cm2)			% Own colourmap used
+  if isnumeric(cm2)				% Own colourmap used
     if n(2)~=size(cm2,1)
       error('Number of colours does not match number of increments in part two!'); 
     end
   else
     try 
-      cm2=cmocean(cm2,n(2));		% Try using CMOCEAN
+      cm2=cmocean(cm2,n(2));			% Try using CMOCEAN
     catch
       try
-	cm2=m_colmap(cm2,n(2));		% Try using M_MAP
+	cm2=m_colmap(cm2,n(2));			% Try using M_MAP
       catch
 	try
-	  eval(['cm2=',cm2,'(n(2));']);	% Use regular matlab colormaps
+	  cm2=colorcet(cm1,'N',n(2));		% Try using COLORCET
 	catch
-	  cm2=jet(n(2));		% In case of nonsense input
+	  try
+	    eval(['cm2=',cm2,'(n(2));']);	% Try built in functions or regular matlab colormaps
+	  catch
+	    cm2=jet(n(2));			% In case of nonsense input
+	  end
 	end
       end
     end

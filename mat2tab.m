@@ -64,7 +64,7 @@ function fid=mat2tab(x,format,filename,perm)
 %          but then you'll have to give filename. Empty format-input like
 %          this gives default format. 
 %
-% see also FPRINTF FOPEN
+% see also SNIPPET FPRINTF FOPEN
 
 %Time-stamp:<Last updated on 03/05/29 at 18:25:27 by even@gfi.uib.no>
 %File:</home/janeven/matlab/evenmat/mat2tab.m>

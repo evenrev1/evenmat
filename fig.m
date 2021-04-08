@@ -111,7 +111,9 @@ else
 end
 
 % get rid of the menues and toolbar
-set(h,'windowstyle','modal')
+%set(h,'windowstyle','modal')
+% No!" Comment in order to fix the issue of locking window shifting (was 'modal')
+
 
 % paper-settings (may be given at a later call to existing figure):
 set(gcf,'paperunits','centimeters');
@@ -128,3 +130,4 @@ if findstr(opt,'F')     % fill paper
   end
 end
 
+%set(h,'windowstyle','normal');

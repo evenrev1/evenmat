@@ -8,9 +8,6 @@ function h=sig(signature)
 %
 % See also FIGSTAMP
 
-%Time-stamp:<Last updated on 04/12/08 at 11:31:46 by even@nersc.no>
-%File:</home/even/matlab/evenmat/sig.m>
-
 %%%%%% CUSTOMIZATION: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mysig='J. Even Ø. Nilsen ';%,date] ;
 mysig=['Nilsen ',datestr(now,10)];
@@ -23,7 +20,8 @@ end
 
 oldsig=findobj(get(gca,'children'),'Tag','sig');
 
-if ~any(oldsig)
+%if ~any(oldsig)
+if isempty(oldsig)
   %  ax=rightmostaxis; axes(ax);
   axis; x=ans(2); y=ans(3);
   horal='left';

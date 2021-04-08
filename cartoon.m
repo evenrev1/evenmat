@@ -29,6 +29,6 @@ else, y=0; dy=1;
 end
 dx=dx-s; x=x+s/2;
 dy=dy-s; y=y+s/2;
-row=max(0,floor((p-1)/n))+1 % from top
-col=max(1,p-(row-1)*n) % from left
+row=max(0,floor((p-1)/n))+1; % from top
+col=max(1,p-(row-1)*n); % from left
 h=axes('position',[x(col) y(end-row+1) dx dy]);

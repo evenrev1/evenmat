@@ -1,16 +1,18 @@
-function h = profcolor(X,Y,Z)
+function [h,X,Y,Z] = profcolor(x,y,Z)
 % PROFCOLOR	Plots columns of data with non-uniform depths and NaNs.
 % 
-% h = profcolor(X,Y,Z)
+% [h,X,Y] = profcolor(x,y,Z)
 % 
-% X	= depth matrix 
-% Y	= column position matrix. E.g., position of profiles or
-%         simply subscripts for columns.   
+% x	= column position vector or matrix. E.g., position of
+%         profiles or simply subscripts for columns.   
+% y	= depth matrix 
 % Z	= data values at X,Y.
 %
 % h	= handle to a surface object, made by PCOLOR.
+% X,Y,Z	= Complete set of matrices of equal size based on the
+%          input. Useful for marking of midpoints.
 %
-% All inputs must be of same size.
+% All inputs must fit in size and Z must be a matrix.
 % 
 % See also PCOLOR EPCOLOR
 
@@ -18,9 +20,14 @@ function h = profcolor(X,Y,Z)
 
 % figure(11); clf; 
 
-clear sX sY sZ
+%clear sX sY sZ
+if ndims(x)>2|ndims(y)>2|ndims(Z)>2, error('Max 2D input allowed!'); end
+sX=size(x); sY=size(y); sZ=size(Z);
+if any(sX==1), X=repmat(x(:)',sZ(1),1); else X=x; end
+if any(sY==1), Y=repmat(y(:),1,sZ(2));  else Y=y; end
 sX=size(X); sY=size(Y); sZ=size(Z);
-if sY~=sZ | sX~=sZ, error('Input matrices must be of same size!'); end
+if any(sY~=sZ|sX~=sZ), error('Input matrices must be of suitable size!'); end
+clear x y
 
 [ans,g_x]=buildgrid(X(1,:));
 xlim(g_x([1 end]))
@@ -53,6 +60,8 @@ if ans(2)==ans(1),
 else
   ylim(ans+[-1 1]);
 end
+
+%%%get(gca,'xtick'); set(gca,'xtick',unique(round(ans)));
 
 % A better sig or figstamp, since it relates to the Axes object and not coordinates in axes.
 a1=gca; get(a1,'position');
