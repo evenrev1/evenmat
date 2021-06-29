@@ -16,7 +16,7 @@ function [name,pos,dist,type,result] = nameinnorway(lon,lat,r,typ)
 % lon      = character search string
 % lat      = optional filter  on type of environment (see above).
 % r        = char 'true' for fuzzy search or 'false' (default) for exact. 
-% 
+%   
 % Output in any case:
 % name     = place names
 % pos      = positions of returned names, one row per name, longitudes
