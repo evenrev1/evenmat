@@ -19,6 +19,7 @@ function s=datestr2(n,dateform)
 %		 105		'd/m'			'9/8' (not 09/08)
 %		 106		'd/m-yy'		'9/8-70' 
 %		 107		'dd.mm.yyyy'		'09.08.1970' 
+%        108        'yyyy-mm-ddTHH:MM:SS'  '1991-01-01T00:00:00'
 %
 % See also DATENUM2 DATENUM, DATEAXIS, DATESTR, DATEVEC, NOW, DATE
 
@@ -52,6 +53,10 @@ switch dateform
   dd=datestr(n,7); %dd=str2num(dd); dd=num2str(dd,'%2.0f');
   yyyy=datestr(n,10);
   s=strcat(dd,'.',mm,'.',yyyy);
- otherwise
+ case 108 %       'yyyy-mm-ddTHH:MM:SS+hh:mm'  '1991-01-01T00:00:00+01:00'
+    mm=datestr(n,29); 
+  dd=datestr(n,15); 
+  s=strcat(mm,'T',dd);
+    otherwise
   s=datestr(n,dateform);
 end

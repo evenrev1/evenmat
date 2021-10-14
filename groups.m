@@ -1,10 +1,10 @@
-function gv=groups(x)
+function [gv,gi,gs]=groups(x)
 % GROUPS        identifies sequences of equal numbers in a vector
 %
-% gv = groups(x)
+% [gv,gi,gs] = groups(x)
 %
 % x     = data-vector
-% gv    = group-vector ofsize(x), containing numbers where the groups
+% gv    = group-vector of size(x), containing numbers where the groups
 %         are, and zeros elsewhere. The numbers 1,2,... identifies the
 %         group number.
 %         
@@ -16,6 +16,8 @@ function gv=groups(x)
 
 % NOTE: Could be expanded to be used for the equations on p.635 in Press,
 % the general Spearman Rank Correlation.
+%
+% See also FIND SNIPPET ZIPNUMSTR
 
 gv=zeros(size(x));		% Initialise the group-vector
 %gv=nans(size(x));		% Initialise the group-vector
@@ -34,3 +36,25 @@ if ~isempty(equalsm)		% Skip if no groups
 end
 
 if isvec(x)==1, gv=gv(:); end	% shape gv according to x
+
+if any(gv)
+  % Make the index matrix:
+  find(logical(gv) & (diff([gv,NaN])~=0 | diff([NaN,gv])~=0));
+  gi=reshape(ans,2,length(ans)/2);
+  % Make the text string:
+  gs=string(gi)';
+  size(gs,1); 
+  gs=[gs(:,1),repmat("-",ans,1),gs(:,2),repmat(", ",ans,1)];
+  if ans>1, gs(end-1,end)=", and "; end
+  gs(end)="";
+  gs'; 
+  gs=sprintf('%s',ans(:)');
+else
+  gi=[];
+  gs='';
+end
+
+% Remove the comma if there is only two groups (e.g., '1-3, and 7-9'):
+if length(findstr(gs,','))<2 
+  gs=replace(gs,{','},{''});
+end

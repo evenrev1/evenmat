@@ -44,15 +44,19 @@ end
 %eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
 eval(['!find ',' ',maindir,filesep,'*',' -mindepth ',int2str(mindepth),' -regex ''.*.',extension,'''',' > ',extension,'files.txt'])
 
-files=textread([extension,'files.txt'],'%s','delimiter','');
+try files=textread([extension,'files.txt'],'%s','delimiter','');
 
-if nargout==2
-  F=textread([extension,'files.txt'],'%s','delimiter',filesep);
-  f=contains(F,['.',extension]);
-  names=F(f);
+  if nargout==2
+    F=textread([extension,'files.txt'],'%s','delimiter',filesep);
+    f=contains(F,['.',extension]);
+    names=F(f);
+  end
+
+  if ~keepfile, delete([extension,'files.txt']); end
+  
+  if newfiles,  files=setxor(prev,files); end
+
+catch 
+  files=''; names='';
 end
-
-if ~keepfile, delete([extension,'files.txt']); end
-
-if newfiles,  files=setxor(prev,files); end
 

@@ -20,7 +20,9 @@ function n=datenum2(d,dateform)
 %               105(unaplicable)'d/m'                   '9/8' (not 09/08)
 %               106             'd/m-yy'                '9/8-70' 
 %               107             'mmm dd yyyy hh:mm:ss'  'Nov 21 1969 12:13:14'
-%
+%               108        'yyyy-mm-ddTHH:MM:SS+hh:mm'  '1991-01-01T00:00:00+01:00'
+%               109        'yyyy-mm-ddTHH:MM:SSZ'       '1998-04-19T09:04:48Z'
+% 
 % In addition to be the inverse operator of DATESTR2 on the same "new"
 % formats, this function is also able to convert some of the string
 % formats that is not covered in DATENUM.
@@ -84,6 +86,16 @@ switch dateform
   HH=d(:,13:14); MM=d(:,16:17); SS=d(:,19:20);
   s=strcat(dd,'-',mmm,'-',yyyy,{' '},HH,':',MM,':',SS); % 'dd-mmm-yyyy HH:MM:SS'
   n=datenum(s);
+    case 108 % '1991-01-01T00:00:00+01:00'
+  yyyy=str2num(d(:,1:4)); mmm=str2num(d(:,6:7)); dd=str2num(d(:,9:10));
+  HH=str2num(d(:,12:13)); MM=str2num(d(:,15:15)); SS=str2num(d(:,18:19));
+  pHH=str2num(d(:,21:22)); pMM=str2num(d(:,24:25)); 
+  HH=HH+pHH; MM=MM+pMM;
+  n=datenum(yyyy,mmm,dd,HH,MM,SS);
+ case 109 % '1998-04-19T09:04:48Z'
+  yyyy=str2num(d(:,1:4)); mmm=str2num(d(:,6:7)); dd=str2num(d(:,9:10));
+  HH=str2num(d(:,12:13)); MM=str2num(d(:,15:15)); SS=str2num(d(:,18:19));
+  n=datenum(yyyy,mmm,dd,HH,MM,SS);
  otherwise
   n=datenum(d,dateform);
 end

@@ -37,7 +37,7 @@ function [cmap,cont] = ecolormap(cont,cm1,cm2,cont0)
 % cont = [-4:1/4:0 0:7];
 %
 % Duplicate numbers, like the zeros in this example, are ignored. These
-% examples alle give the same cont, consisting of one part with
+% examples all give the same cont, consisting of one part with
 % increments of 0.25 and a second part with increments of 1. These are
 % the two parts the two colormaps will be matched to. There is great
 % flexibility in the choice of increments. The increments of one part
