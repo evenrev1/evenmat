@@ -15,8 +15,8 @@ function md_file = m2md(m_file,md_file,opt)
 %
 % - First line will be formatted with heading size font.
 % - Start bulleted list with '- '. 
-% - Instances of 'https:...' will result in links, but not in a quote
-%   (tab in front). 
+% - Instances of 'https://...' will result in links, but not in a
+%   quote (tab in front). 
 % - If you want file names to come out in bold, you must format those 
 %   lines with '% '<file name>'\t'<description> as done in this file. 
 %
@@ -60,10 +60,10 @@ while 1
   if ~isempty(r) & boldfile
     regexprep(ans,'% (\S+)\t',['**',r{1}{1},'**\t'],'once');
   end
-  regexprep(ans,'\t-',' -','once'); % Remove tabs when there's list mark
-  r=regexp(ans,'https:(\S+)','match');	% insert links
+  regexprep(ans,'\t-',' -','once'); % Remove tabs when there's a list mark
+  r=regexp(ans,'http(\S?)://(\S*)','match');	% insert links
   if ~isempty(r)
-    regexprep(ans,'https:(\S+)',['[',r{1},']','(',r{1},')']);
+    regexprep(ans,'https://(\S+)',['[',r{1},']','(',r{1},')']);
   end
   replace(ans,'%','');			% Remove comment marking
   fprintf(fout,'%s\n',ans);		% Write with newline
