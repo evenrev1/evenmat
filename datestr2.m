@@ -11,15 +11,16 @@ function s=datestr2(n,dateform)
 % d         = integer or string date depending on specified format 
 %
 %             DATEFORM number   DATEFORM string         Example
-%                100             'yymmdd'                691121    
-%                101             'mmm dd yyyy'           'Nov 21 1969'
-%                102             'mm/dd/yyyy'            '11/21/1969'
+%                100            'yymmdd'               '691121'    
+%                101            'mmm dd yyyy'          'Nov 21 1969'
+%                102            'mm/dd/yyyy'           '11/21/1969'
 %		 103		'mm.yyyy'		'11.1969'
 %		 104		'dd/mm/yy'		'21/11/69'
 %		 105		'd/m'			'9/8' (not 09/08)
 %		 106		'd/m-yy'		'9/8-70' 
 %		 107		'dd.mm.yyyy'		'09.08.1970' 
-%        108        'yyyy-mm-ddTHH:MM:SS'  '1991-01-01T00:00:00'
+%		 108		'yyyy-mm-ddTHH:MM:SS'	'1991-01-01T00:00:00'
+%                109            'yyyymmdd'              '19691121'    
 %
 % See also DATENUM2 DATENUM, DATEAXIS, DATESTR, DATEVEC, NOW, DATE
 
@@ -54,9 +55,12 @@ switch dateform
   yyyy=datestr(n,10);
   s=strcat(dd,'.',mm,'.',yyyy);
  case 108 %       'yyyy-mm-ddTHH:MM:SS+hh:mm'  '1991-01-01T00:00:00+01:00'
-    mm=datestr(n,29); 
+  mm=datestr(n,29); 
   dd=datestr(n,15); 
   s=strcat(mm,'T',dd);
-    otherwise
+ case 109
+  yyyy=datestr(n,10); datestr(n,6); mm=ans(:,1:2); dd=ans(:,4:5);
+  s=strcat(yyyy,mm,dd);
+ otherwise
   s=datestr(n,dateform);
 end
