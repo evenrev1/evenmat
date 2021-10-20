@@ -19,8 +19,11 @@ function s=datestr2(n,dateform)
 %		 105		'd/m'			'9/8' (not 09/08)
 %		 106		'd/m-yy'		'9/8-70' 
 %		 107		'dd.mm.yyyy'		'09.08.1970' 
-%		 108		'yyyy-mm-ddTHH:MM:SS'	'1991-01-01T00:00:00'
-%                109            'yyyymmdd'              '19691121'    
+%		 108            'mmm dd yyyy hh:mm:ss'  'Nov 21 1969 12:13:14'
+%		 109	'yyyy-mm-ddTHH:MM:SS'		'1991-01-01T00:00:00'
+%		 110	'yyyy-mm-ddTHH:MM:SS+hh:mm'	'1991-01-01T00:00:00+00:00'
+%		 111	'yyyy-mm-ddTHH:MM:SSZ'		'1991-01-01T00:00:00Z'
+%                112            'yyyymmdd'              '19691121'    
 %
 % See also DATENUM2 DATENUM, DATEAXIS, DATESTR, DATEVEC, NOW, DATE
 
@@ -30,7 +33,7 @@ switch dateform
   s=strcat(yy,mm,dd);
  case 101
   yyyy=datestr(n,10); mmm=datestr(n,3);  dd=datestr(n,7); %dd=ans(:,4:5);
-  s=strcat(mmm,{' '},dd,{' '},yyyy);
+  s=char(strcat(mmm,{' '},dd,{' '},yyyy));
  case 102
   datestr(n,6); mm=ans(:,1:2); dd=ans(:,4:5); yyyy=datestr(n,10);
   s=strcat(mm,'/',dd,'/',yyyy);
@@ -49,17 +52,31 @@ switch dateform
   dd=datestr(n,7); dd=str2num(dd); dd=num2str(dd);
   yy=datestr(n,11);
   s=strcat(dd,'/',mm,'-',yy);
- case 107
+ case 107 % '09.08.1970' 
   mm=datestr(n,5); %mm=str2num(mm); mm=num2str(mm,'%2.0f');
   dd=datestr(n,7); %dd=str2num(dd); dd=num2str(dd,'%2.0f');
   yyyy=datestr(n,10);
   s=strcat(dd,'.',mm,'.',yyyy);
- case 108 %       'yyyy-mm-ddTHH:MM:SS+hh:mm'  '1991-01-01T00:00:00+01:00'
+ case 108 % 'Nov 21 1969 12:13:14'
+  yyyy=datestr(n,10); mmm=datestr(n,3); dd=datestr(n,7); %dd=ans(:,4:5);
+  time=datestr(n,13);
+  s=char(strcat(mmm,{' '},dd,{' '},yyyy,{' '},time));
+ case 109 % '1991-01-01T00:00:00'
   mm=datestr(n,29); 
-  dd=datestr(n,15); 
+  dd=datestr(n,13); 
   s=strcat(mm,'T',dd);
- case 109
-  yyyy=datestr(n,10); datestr(n,6); mm=ans(:,1:2); dd=ans(:,4:5);
+ case 110 % '1991-01-01T00:00:00+00:00'
+  mm=datestr(n,29); 
+  dd=datestr(n,13); 
+  s=strcat(mm,'T',dd,'+00:00');
+ case 111 % '1991-01-01T00:00:00Z'
+  mm=datestr(n,29); 
+  dd=datestr(n,13); 
+  s=strcat(mm,'T',dd,'Z');
+ case 112 % '19691121'    
+  mm=datestr(n,5);
+  dd=datestr(n,7);
+  yyyy=datestr(n,10);
   s=strcat(yyyy,mm,dd);
  otherwise
   s=datestr(n,dateform);

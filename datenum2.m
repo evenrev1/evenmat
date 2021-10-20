@@ -19,9 +19,12 @@ function n=datenum2(d,dateform)
 %               104             'dd/mm/yy'              '21/11/69'
 %               105(unaplicable)'d/m'                   '9/8' (not 09/08)
 %               106             'd/m-yy'                '9/8-70' 
-%               107             'mmm dd yyyy hh:mm:ss'  'Nov 21 1969 12:13:14'
-%               108        'yyyy-mm-ddTHH:MM:SS+hh:mm'  '1991-01-01T00:00:00+01:00'
-%               109        'yyyy-mm-ddTHH:MM:SSZ'       '1998-04-19T09:04:48Z'
+%		107		'dd.mm.yyyy'		'09.08.1970' 
+%               108             'mmm dd yyyy hh:mm:ss'  'Nov 21 1969 12:13:14'
+%               109        'yyyy-mm-ddTHH:MM:SS'	'1991-01-01T00:00:00'
+%               110        'yyyy-mm-ddTHH:MM:SS+hh:mm'  '1991-01-01T00:00:00+01:00'
+%               111        'yyyy-mm-ddTHH:MM:SSZ'       '1998-04-19T09:04:48Z'
+%               112		'yyyymmdd'              '19691121'    
 % 
 % In addition to be the inverse operator of DATESTR2 on the same "new"
 % formats, this function is also able to convert some of the string
@@ -56,7 +59,7 @@ switch dateform
   % The string S must be in one of the date formats
   % 0,1,2,6,13,14,15,16 (as defined by DATESTR).
   n=datenum(strcat(dd,'-',mmm,'-',yyyy));
- case 102
+ case {102,107} % '09/08/1970' % '09.08.1970' 
   yy=d(:,9:10); mm=d(:,1:2); dd=d(:,4:5);
   s=strcat(mm,'/',dd,'/',yy);
   n=datenum(s);
@@ -80,22 +83,27 @@ switch dateform
   %dd=datestr(num2str(d(:,1:dm-1)),7),
   s=strcat(mm,'/',dd,'/',yy),
   n=datenum(s),
- case 107
+ %case 107 % above
+ case 108 % 'Nov 21 1969 12:13:14'
   da=char(d); 
   yyyy=da(:,8:11); mmm=da(:,1:3); dd=da(:,5:6);
   HH=d(:,13:14); MM=d(:,16:17); SS=d(:,19:20);
   s=strcat(dd,'-',mmm,'-',yyyy,{' '},HH,':',MM,':',SS); % 'dd-mmm-yyyy HH:MM:SS'
   n=datenum(s);
-    case 108 % '1991-01-01T00:00:00+01:00'
-  yyyy=str2num(d(:,1:4)); mmm=str2num(d(:,6:7)); dd=str2num(d(:,9:10));
-  HH=str2num(d(:,12:13)); MM=str2num(d(:,15:15)); SS=str2num(d(:,18:19));
-  pHH=str2num(d(:,21:22)); pMM=str2num(d(:,24:25)); 
+ case {109,111} % '1991-01-01T00:00:00' % '1998-04-19T09:04:48Z'
+  yyyy=str2num(d(:,1:4)); mm=str2num(d(:,6:7)); dd=str2num(d(:,9:10));
+  HH=str2num(d(:,12:13)); MM=str2num(d(:,15:16)); SS=str2num(d(:,18:19));
+  n=datenum(yyyy,mm,dd,HH,MM,SS);
+ case 110 % '1991-01-01T00:00:00+01:00'
+  yyyy=str2num(d(:,1:4)); mm=str2num(d(:,6:7)); dd=str2num(d(:,9:10));
+  HH=str2num(d(:,12:13)); MM=str2num(d(:,15:16)); SS=str2num(d(:,18:19));
+  pHH=str2num(d(:,21:22)); pMM=str2num(d(:,24:25));
   HH=HH+pHH; MM=MM+pMM;
-  n=datenum(yyyy,mmm,dd,HH,MM,SS);
- case 109 % '1998-04-19T09:04:48Z'
-  yyyy=str2num(d(:,1:4)); mmm=str2num(d(:,6:7)); dd=str2num(d(:,9:10));
-  HH=str2num(d(:,12:13)); MM=str2num(d(:,15:15)); SS=str2num(d(:,18:19));
-  n=datenum(yyyy,mmm,dd,HH,MM,SS);
+  n=datenum(yyyy,mm,dd,HH,MM,SS);
+ case 111 % above
+ case 112 % '19691121'
+  yyyy=str2num(d(:,1:4)); mm=str2num(d(:,5:6)); dd=str2num(d(:,7:8));
+  n=datenum(yyyy,mm,dd);
  otherwise
   n=datenum(d,dateform);
 end
