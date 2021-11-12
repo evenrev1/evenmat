@@ -53,6 +53,6 @@ end
 % clear norwaycoast_f
 % point and zoom on an island
 % gco; set(ans,'edgecolor','r')
-% p=ans.Vertices; [p(:,1),p(:,2)]=m_xy2ll(p(:,1),p(:,2));P=emerge(P,p);
+% p=ans.Vertices; [p(:,1),p(:,2)]=m_xy2ll(p(:,1),p(:,2));P=ejoin(P,p);
 % norwaycoast_f=P; % finally
 % save norwaycoast norwaycoast_f -append
