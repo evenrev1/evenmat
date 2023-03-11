@@ -45,9 +45,9 @@ end
 oldstamp=findobj(get(gcf,'children'),'Tag','figstamp');
 
 if strcmp(signature,'off')	% special options
-  if any(oldstamp), delete(oldstamp); end
+  if exist('oldstamp'), delete(oldstamp); end
   h=[];
-elseif any(oldstamp)
+elseif exist('oldstamp')
   if ~override
     ans=questdlg('Owerwrite the figstamp in this figure?',...
 		 ['Figure ',get(gcf,'name'),' already stamped!'],...

@@ -1,12 +1,12 @@
-function lim = wmosquare(w)
+function lim = wmosquare(wmo_number)
 % WMOSQUARE	Find lon,lat limits/ranges of any given wmo-square.
 % 
 % lim = wmosquare(wmo_number)
 %
 % wmo_number = The number to the WMO-square to find the ranges of.
 %
-% lim     = [longitude_min longitude_max latitude_min latitude_max]
-%           four point vector describing limits of rectangle.
+% lim        = [longitude_min longitude_max latitude_min latitude_max]
+%              four point vector describing limits of rectangle.
 % 
 % If you want to draw the square on a (non-Mercator) map, I recommend
 % transfering the output to a densely drawn polygon, using ERECT with
@@ -17,12 +17,12 @@ function lim = wmosquare(w)
 % See also FINDWMO ERECT WMO_SQUARE_DEMO
 
 error(nargchk(1,1,nargin));
-if ~isscalar(w) | isnan(w), error('Scalar input only!'); end
+if ~isscalar(wmo_number) | isnan(wmo_number), error('Scalar input only!'); end
 
 % Digits:
-d1=floor(w/1000)*1000;
-d2=floor((w-d1)/100)*100;
-d34=w-d1-d2;
+d1=floor(wmo_number/1000)*1000;
+d2=floor((wmo_number-d1)/100)*100;
+d34=wmo_number-d1-d2;
 
 % Factors and offsets [lon lat lon lat]:
 switch d1 

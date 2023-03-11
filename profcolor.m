@@ -1,7 +1,7 @@
 function [h,X,Y,Z] = profcolor(x,y,Z)
 % PROFCOLOR	Plots columns of data with non-uniform depths and NaNs.
 % 
-% [h,X,Y] = profcolor(x,y,Z)
+% [h,X,Y,Z] = profcolor(x,y,Z)
 % 
 % x	= column position vector or matrix. E.g., position of
 %         profiles or simply subscripts for columns.   
@@ -9,8 +9,8 @@ function [h,X,Y,Z] = profcolor(x,y,Z)
 % Z	= data values at X,Y.
 %
 % h	= handle to a surface object, made by PCOLOR.
-% X,Y,Z	= Complete set of matrices of equal size based on the
-%          input. Useful for marking of midpoints.
+% X,Y,Z	= Complete set of matrices of equal size based on the 
+%         input. Useful for marking of midpoints.
 %
 % All inputs must fit in size and Z must be a matrix.
 % 
@@ -29,7 +29,11 @@ sX=size(X); sY=size(Y); sZ=size(Z);
 if any(sY~=sZ|sX~=sZ), error('Input matrices must be of suitable size!'); end
 clear x y
 
-[ans,g_x]=buildgrid(X(1,:));
+if size(X,2)<2
+  g_x=X(1,1)+[-.5 .5];
+else
+    [ans,g_x]=buildgrid(X(1,:));
+end
 xlim(g_x([1 end]))
 %xl(1)=X(1,1)-diff(X(1,1:2))/2; xl(2)=X(1,end)+diff(X(1,end-1:end))/2; xlim(xl);
 

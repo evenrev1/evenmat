@@ -8,7 +8,7 @@ function [x,y,Z,JA,JB,IA,IB] = emerge(x1,y1,Z1,x2,y2,Z2,opt)
 % merges them . 
 % 
 % [x,y,Z,JA,JB,IA,IB] = emerge(x1,y1,Z1,x2,y2,Z2)
-
+%
 % x1	   = Coordinates for each column in Z1.
 % y1	   = Coordinates for each row in Z1
 % Z1	   = Data array of the first dataset.

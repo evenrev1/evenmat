@@ -62,7 +62,8 @@ if isstruct(x) % Special code for multiline output of fields in structures
     w=whos('y');
     if isnumeric(y)
       if strcmp(fnam{i},groupfields)
-	[~,~,y]=groups(y);
+	%[~,~,y]=groups(y);
+	y=listnumstr(y,[],conj);
       elseif any(w.size>Nstr,'all')
 	y=['[',regexprep(int2str(w.size),'  ','x'),' ',w.class,']'];
       elseif all(w.size==0,'all')

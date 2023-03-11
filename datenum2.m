@@ -8,7 +8,7 @@ function n=datenum2(d,dateform)
 % d         = integer or string date depending on given format 
 % dateform  = format of input date-string   (default=100, see below)
 %
-% n         = serial (Julian) days where 1 corresponds to 1-Jan-0000
+% n         = serial days where 1 corresponds to 1-Jan-0000
 %
 %             DATEFORM number   DATEFORM string         Example
 %               30 (ISO 8601)   'yyyymmddTHHMMSS'       20000301T154517 

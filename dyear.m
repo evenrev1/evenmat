@@ -1,9 +1,9 @@
 function Y=dyear(n);
-% DYEAR		Decimal year from julian day
+% DYEAR		Decimal year from serial day
 %
 % Y = dyear(n)
 % 
-% n	= serial (Julian) days where 1 corresponds to 1-Jan-0000
+% n	= Matlab serial days
 % Y	= Decimal year of the form 1969.89...
 %
 % Takes into consideration the actual length of each year, by

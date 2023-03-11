@@ -1,10 +1,11 @@
-function zs = zipnumstr(x,conj)
-% ZIPNUMSTR	makes string summing up the numbers in a vector
+function zs = zipnumstr(x,conjunction)
+% ZIPNUMSTR	makes string summing up the numbers that exists in a vector
+% irrespective of sequence it gives a strong of sorted numbers.
 % 
-% zs = zipnumstr(x,conj)
+% zs = zipnumstr(x,conjunction)
 % 
 % x	= input integer vector.
-% conj  = conjunction to use to join last two parts (default = ', and ').
+% conjunction  = conjunction to use to join last two parts (default = ', and ').
 %
 % zs	= the combined string of numbers in x.
 %
@@ -15,7 +16,9 @@ function zs = zipnumstr(x,conj)
 % See also SNIPPET MAT2TAB STRING DEBLANK GROUPS
 
 error(nargchk(1,2,nargin));
-if nargin<2 | isempty(conj), conj=', and '; end
+if nargin<2 | isempty(conjunction), conjunction=', and '; end
+
+if isempty(x), zs=''; return; end
 
 y=unique(x(:))';
 y=[y,y(end)+2]; % Add dummy at end to fool the loop below
@@ -23,8 +26,8 @@ zs='';
 y1=y(1);
 for i=2:length(y)
   if ~(y(i-1)==y(i) | y(i-1)==y(i)-1) % Not same or subsequent number 
-    if ~isempty(zs) & i==length(y) & i==3,	zs=[zs,replace(conj,{','},{''})];
-    elseif ~isempty(zs) & i==length(y),		zs=[zs,conj];
+    if ~isempty(zs) & i==length(y) & i==3 & ~strcmp(strip(conjunction),','),	zs=[zs,replace(conjunction,{','},{''})];
+    elseif ~isempty(zs) & i==length(y),		zs=[zs,conjunction];
     elseif ~isempty(zs),			zs=[zs,', ']; 
     end
     y2=y(i-1);
@@ -39,6 +42,6 @@ for i=2:length(y)
 end
 
 % Remove the comma if there is only two groups (e.g., '1-3, and 7-9'):
-if length(findstr(zs,','))<2 & any(findstr(conj,',')) & ~strcmp(strip(conj),',')
+if length(findstr(zs,','))<2 & any(findstr(conjunction,',')) & ~strcmp(strip(conjunction),',')
   zs=replace(zs,{','},{''});
 end

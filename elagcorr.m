@@ -19,8 +19,8 @@ function [r,sig,k,R,K] = elagcorr(x,y,maxlag,alpha)
 % R	 = correlation coefficients of significant peaks.
 % K	 = lags of the significant peaks.
 % 
-% Positive lag means the primary time series lags the secondary timeseries.
-% Results are plotted if no output arguments are given.
+% Positive lag means the primary time series lags the secondary
+% timeseries. Results are plotted if no output arguments are given.
 %
 % Quite often one can see lagged correlations being made and plotted
 % with a smooth convex curve or even flat line indicating the
@@ -86,7 +86,7 @@ k=k';	% for consistent output
 % Find all the significant correlations:
 j=find(abs(r)>sig);		% Indices of significant corrs
 g=groups(diff(j));		% The groups of significant corrs
-for i=1:max(g),			% Loop each group
+for i=1:max(g)			% Loop each group
   j(g==i);			% Indices of group
   if sign(r(ans))<0
     [R(i),kk]=min(r(ans));	% Find min in negative group

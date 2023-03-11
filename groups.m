@@ -1,29 +1,40 @@
-function [gv,gi,gs]=groups(x)
+function [gv,gi,gs]=groups(x,slim)
 % GROUPS        identifies sequences of equal numbers in a vector
+% ignoring single occurences of numbers
+% 
+% [gv,gi,gs] = groups(x,slim)
 %
-% [gv,gi,gs] = groups(x)
-%
-% x     = data-vector
+% x     = data-vector ínput
+% slim  = size limit (lower) of what is considered groups (default=2).
 % gv    = group-vector of size(x), containing numbers where the groups
 %         are, and zeros elsewhere. The numbers 1,2,... identifies the
 %         group number.
+% gi    = a 2xn matrix with start and end indices for each group as
+%         columns. 
+% gs    = string listing the pairs of indices.
 %         
 % Example:              x  = [7 4 3 3 5 5 5 1 9 9] 
 %                   =>  gv = [0 0 1 1 2 2 2 0 3 3]
+%                       gi = [3  5  9;
+%                             4  7 10]
+%                       gs = '3-4, 5-7, and 9-10'
 %
-% PS! No sorting is performed, only already present groupings in x are
-% detected.
-
+% Note that no sorting is performed, only groupings already present in x are
+% detected. And single numbers do not constitute groups.
+%
 % NOTE: Could be expanded to be used for the equations on p.635 in Press,
 % the general Spearman Rank Correlation.
 %
 % See also FIND SNIPPET ZIPNUMSTR
 
-gv=zeros(size(x));		% Initialise the group-vector
-%gv=nans(size(x));		% Initialise the group-vector
-equalsm=find(~diff(x));         % Find all groups of equals (-last value)
-if ~isempty(equalsm)		% Skip if no groups
-  starts=[1;find(diff(equalsm(:))>1)+1];% Find startpoints in equalsm
+error(nargchk(1,2,nargin));
+if nargin<2 | isempty(slim), slim=2; end
+
+gv=zeros(size(x));			% Initialise the group-vector
+%gv=nans(size(x));			% Initialise the group-vector
+equalsm=find(~diff(x));			% Find all groups of equals (-last value)
+if ~isempty(equalsm)			% Skip if no groups
+  starts=[1;find(diff(equalsm(:))>slim-1)+1];% Find startpoints in equalsm
   nog=length(starts);			% number of groups
   for i=1:nog-1				
     g1=equalsm(starts(i));
@@ -39,7 +50,8 @@ if isvec(x)==1, gv=gv(:); end	% shape gv according to x
 
 if any(gv)
   % Make the index matrix:
-  find(logical(gv) & (diff([gv,NaN])~=0 | diff([NaN,gv])~=0));
+  %find(logical(gv) & (diff([gv,NaN])~=0 | diff([NaN,gv])~=0));
+  find(logical(gv) & (diff(cat(isvec(gv),gv,NaN))~=0 | diff(cat(isvec(gv),NaN,gv))~=0));
   gi=reshape(ans,2,length(ans)/2);
   % Make the text string:
   gs=string(gi)';

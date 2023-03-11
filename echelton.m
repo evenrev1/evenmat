@@ -31,7 +31,7 @@ function [sig_corr,Nstar] = echelton(x,y,alpha)
 %
 % Based on A. B. Sandoe and H. R. Langehaug's code for the method.
 % 
-% See also ETREND ITS AUTOCORR
+% See also ETREND ITS AUTOCORR ELAGCORR
 
 error(nargchk(2,3,nargin));
 if nargin<3 | isempty(alpha),	alpha=0.05;	end

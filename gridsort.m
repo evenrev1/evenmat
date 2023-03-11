@@ -16,9 +16,8 @@ function [Z,LO,LA] = gridsort(lon,lat,z,LO,LA)
 % z       = ND array of original data with space as first dimension
 %           (corresponding lon and lat), and any other
 %           dimensions following (e.g., time).
-% LO,LA   = 2D matrices describing the grid, with latitude as 1st
-%           dimension (along column) and longitude as 2nd. 
-%           Give input if grid is known a priori. If not the range
+% LO,LA   = 1D vectors describing the grid. 
+%           Give input if grid is known a priori. If not, the range
 %           and minimum differences of lon and lat will be used to
 %           form the 2D grid, using MESHGRID.
 %

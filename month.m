@@ -8,7 +8,7 @@ function s = month(i,dateform)
 %             (default = 3: Jan, Feb, ...) 
 % s	    = Short name of month in a string
 % 
-% See also MONTHAXIS DATESTR YEARDAY
+% See also MONTHAXIS DATESTR YRDAY
 
 error(nargchk(1,2,nargin));
 if nargin<2 | isempty(dateform), dateform=3; end
