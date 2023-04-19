@@ -11,6 +11,7 @@ function s = snippet(x,filename,opt,conj,groupfields,Nstr)
 % x           = any variable (possibly)
 % filename    = Optional file name. Particularly useful when input is
 %               indexed or not a named object. (default='snippet.tex')
+%               Input of ';' supresses writing to file. 
 % opt         = Optional string of one or more characters to replace, as these
 %               might cause trouble in LaTeX or other places. The list of
 %               available characters and their replacements are:
@@ -37,6 +38,8 @@ function s = snippet(x,filename,opt,conj,groupfields,Nstr)
 %
 % See also MAT2TAB STRING DEBLANK ZIPNUMSTR GROUPS
 
+% Last updated: Fri Apr 14 13:55:36 2023 by jan.even.oeie.nilsen@hi.no
+
 error(nargchk(1,6,nargin));
 if nargin <6 | isempty(Nstr),		Nstr=50;		end
 if nargin <5 | isempty(groupfields),	groupfields={''};	end
@@ -48,11 +51,13 @@ if nargin <2 | isempty(filename)
   else
     filename=[inputname(1),'.tex'];
   end
-else
+elseif ~strcmp(filename,';')
   filename=[filename,'.tex'];
 end
 
-fid=fopen(filename,'w');
+if ~strcmp(filename,';')
+  fid=fopen(filename,'w');
+end
 
 if isstruct(x) % Special code for multiline output of fields in structures
   fnam=fieldnames(x);
@@ -72,7 +77,8 @@ if isstruct(x) % Special code for multiline output of fields in structures
 	y=num2str(y);
       end
     end
-    fprintf(fid,'%s%s\n',ss(i,:),y); 
+
+    if exist('fid','var'), fprintf(fid,'%s%s\n',ss(i,:),y); end 
   end
   s=filename;
   % s=char(strcat(pad(fieldnames(x),'left'),{': '},struct2cell(x)));
@@ -109,8 +115,8 @@ else  % The original code to make small one line snippet
   if contains(opt,'_'),findstr(s,'_'); s(ans)='-';end
   if contains(opt,' '),findstr(s,' '); s(ans)='';end
 
-  fprintf(fid,s,'%s'); % \n ?
+  if exist('fid','var'), fprintf(fid,s,'%s'); end % \n ?
 end
 
-fclose(fid);
+if exist('fid','var'), fclose(fid); end
 

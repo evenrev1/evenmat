@@ -28,8 +28,7 @@ function bin=bin1d(x,d,X,asc,err)
 %
 % See also BUILDGRID BIN2D BIN3D BINSUB
 
-%Time-stamp:<Last updated on 14/10/29 at 16:40:39 by even@nersc.no>
-%File:</Users/even/matlab/evenmat/bin1d.m>       
+% Last updated: Fri Apr 14 13:08:33 2023 by jan.even.oeie.nilsen@hi.no
 
 error(nargchk(2,4,nargin));
 NN=10; % default number of bins

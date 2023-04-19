@@ -10,7 +10,7 @@
 
  CROSSREFERENCES are used a lot, so a download of it all is
  recommended. Downloading just one function might send you back here
- searching for it's required functions. 
+ searching for its required functions. 
 
  Updates at [https://github.com/evenrev1/evenmat.git](https://github.com/evenrev1/evenmat.git)
  

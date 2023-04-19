@@ -69,6 +69,13 @@ function [PRESqcn,TEMPqcn,PSALqcn] = check_profiles(PRES,TEMP,varargin)
 %   'backgroundpalette'	Three element cell object with colour codes
 %			for {figure window, axesbackground, map grid
 %			and bottom contours} (Ocean Blue)
+%   featuretype'        Categories of discrete sampling geometry, as
+%                       given by CF-conventions. Currently available
+%                       are: 'profile' (default) and 'trajectory'. 
+%   'nearintime'        Number of days considered as almost
+%			simultaneous with the profile in
+%			question. Reference data profiles within
+%			this, will be coloured dark pink.
 %		   You can also edit the default values to your own
 %		   liking in the beginning of this function's code.
 %
@@ -77,12 +84,16 @@ function [PRESqcn,TEMPqcn,PSALqcn] = check_profiles(PRES,TEMP,varargin)
 %		   that these deliberately do not carry over flags
 %		   from the input, in order for the user to be able
 %		   to separate newly set flags from the previously
-%		   existing input flags. 
+%		   existing input flags. If only one of these are
+%		   requested, only the flagging done in that panel
+%		   will be delivered.
 %
-% This tool can be used for comparison and flagging of any pair of
-% parameters measured in profiles, not just temperature and
+% This tool is originally designed for comparison and flagging of any
+% pair of parameters measured in profiles, not just temperature and
 % salinity. Only PRES has to be the vertical coordinate pressure (or
-% depth).
+% depth). But you can easily input trajectory or time series
+% data. The zoom and pan functions will make it practical for that as
+% well. Just input as you would for a single profile.
 %
 % You can use TYPE PREDIT to see all instructions, keystroke menu, and
 % flag list. Or simply press n, m, or f while in session.
@@ -133,6 +144,9 @@ par.highlightcolour = [.8 .15 .15];%dark red
 par.maxprof = 50; 
 par.uppercut = 10;
 par.backgroundpalette = {'#009dc4' '#eafaff' '#00b0dc'}; % Ocean Blue
+par.featuretype = 'profile'; 
+par.nearintime = 15;
+par.nearcolour = [.8 .2 .5]; % Pink/magenta-ish
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Check for parameter/value pairs:
@@ -142,13 +156,15 @@ for i = 1:length(varargin) % work for a list of name-value pairs
   % Check if input is character row and not part of an already identified p/v-pair:
   if ischar(varargin{i}) & isrow(varargin{i}) & ~ismember(i,pvp)
     if any(strcmp(varargin{i},vpn))		% if valid parameter name
-      par.(varargin{i}) = varargin{i+1};	% override parameters in structure
-    else
-      warning(['Invalid parameter name ''',varargin{i},'''! Parameter/value pair ignored.']);
+      par.(varargin{i}) = varargin{i+1};	% write parameters to structure
+      pvp=[pvp,i,i+1];	% indices for the input p/v-pairs
+    % else
+    %   warning(['Invalid parameter name ''',varargin{i},'''! Parameter/value pair ignored.']);
     end 
-    pvp=[pvp,i,i+1];	% indices for the input p/v-pairs
+    % pvp=[pvp,i,i+1];	% indices for the input p/v-pairs
   end
 end
+
 varargin=varargin(setdiff(1:nargin-2,pvp)); % Remove parameter/value pairs from varargin
 nvarargin=length(varargin);
 error(nargchk(2,10+length(pvp),nargin));	% Number of arguments check
@@ -169,8 +185,9 @@ else,		 PSAL=varargin{1};		PSALname=inputname(1+2);	end
 PRESname=''; try PRESname=inputname(1); end; if isempty(PRESname), PRESname='PRES'; end
 TEMPname=''; try TEMPname=inputname(2); end; if isempty(TEMPname), TEMPname='TEMP'; end
 
+[m,n]=size(PRES); om=m; on=n; 
+
 % Set defaults:
-[m,n]=size(PRES);
 if isempty(LAT),	LAT=nan(1,n);			end
 if isempty(LONG),	LONG=nan(1,n);			end
 if isempty(J),		J=1:n;				end
@@ -191,12 +208,24 @@ end
 if ~isequal(size(PRES),size(TEMP),size(PSAL),size(PRESqco),size(TEMPqco),size(PSALqco))
   error('Input data (and flag) matrices must be of same size!');
 end
+if m==1						% For timeseries and trajectories, flip everything
+  PRES=PRES(:); TEMP=TEMP(:); PSAL=PSAL(:); 
+  PRESqco=PRESqco(:); TEMPqco=TEMPqco(:); PSALqco=PSALqco(:); 
+  m=on; n=om; J=1;
+  if ~contains(par.featuretype,{'timeSeries','trajectory'})
+    par.featuretype = 'trajectory'; % Default for 1xn input
+    disp(['check_profiles: Assuming the 1xn input is of featuretype ',par.featuretype,'.'])
+  end
+end
 if ~isempty(par.parallelprofiles)		% Parallel profiles
   if ~isequal(size(par.parallelprofiles.PRES),size(par.parallelprofiles.TEMP),size(par.parallelprofiles.PSAL))
     warning('Input data and parallel-profile matrices does not have the same number of columns!');
     par.parallelprofiles=[];
   end
 end
+% Valid featuretype strings:
+% point timeSeries trajectory profile timeSeriesProfile trajectoryProfile
+
 
 % Init the new flag matrices to be filled here:
 [PRESqcn,TEMPqcn,PSALqcn] = deal(repmat(' ',m,n)); 
@@ -251,7 +280,7 @@ for j=1:N	% Loop columns to check
   % My own pressure test:
   [~,ans]=monotonic(PRES(:,J(j)));	
   iPn=find(ans);			% Indices for new bad flagged pressure values
-  PRESqco(iPn,J(j))='4';		% Add these to old flags 
+  %PRESqco(iPn,J(j))='4';		% No, DO NOT add these to old flags 
 
   % Indices to initial markers (all not good flagged values):
   iP=find(PRESqco(:,J(j))~='1' & PRESqco(:,J(j))~=' ');
@@ -269,26 +298,25 @@ for j=1:N	% Loop columns to check
   ~isnan(LONG(jjj))&~isnan(LAT(jjj)); jjj=jjj(ans);	% Avoid NaNs ([] POSqco is not applied yet)
   
   % Extract reference data:
-  if ~isempty(par.refdatadir) & ~all(isnan(LONG)) & ~all(isnan(LAT))	% If any positions
+  if ~isempty(par.refdatadir) & ~all(isnan(LONG(jjj))) & ~all(isnan(LAT(jjj)))	% If any positions
     if diff(mima(LONG(jjj)))<0.6 & diff(mima(LAT(jjj)))<0.4 % Make sure not too small area of group
       [LO,LA]=halo(LONG(jjj),LAT(jjj),1.2,0.7);		% Find envelope
     elseif isscalar(LONG),	
       [LO,LA]=halo(LONG(jjj),LAT(jjj),.3,.2);		% Find envelope
-    else,		
+    else		
       [LO,LA]=halo(LONG(jjj),LAT(jjj),.3);		% Find envelope
     end
     % [] time always given?
-    [pres,temp,sal,long,lat,~,~,dmon,mons,yrs]=inpolygon_referencedata(LO,LA,par.refdatadir,par.maxprof,par.time(J(j)));	% Find refdata in envelope
+    [pres,temp,sal,long,lat,~,rdt,~,dmon,mons,yrs]=inpolygon_referencedata(LO,LA,par.refdatadir,par.maxprof,par.time(J(j)));	% Find refdata in envelope
   else
-    [LO,LA,pres,temp,sal,dens,long,lat,dmon,mons,yrs]=deal([]);		% Otherwise empty
+    [LO,LA,pres,temp,sal,dens,long,lat,rdt,dmon,mons,yrs]=deal([]);		% Otherwise empty
   end
-  
   figure; hF(j)=gcf;				% FIGURE
   set(hF(j),'position',get(0,'screensize'),'color',par.backgroundpalette{1}, ...
 	    'name',['check_profiles: Profile ',int2str(j)], ...
 	    'Tag','check_profiles'); clf;
-  %set(hF(j),'position',get(0,'screensize'),'color',par.backgroundpalette{1},'Tag','check_profiles'); clf;
-  par=setfield(par,'oldflags',[PRESqco(:,J(j)),TEMPqco(:,J(j)),PSALqco(:,J(j)),DENSqco(:,J(j))]);% Add the original flags to parameters (in order to use esc).
+  % Add the original flags to parameters (in order to use esc):
+  par=setfield(par,'oldflags',[PRESqco(:,J(j)),TEMPqco(:,J(j)),PSALqco(:,J(j)),DENSqco(:,J(j))]);
   set(hF(j),'Userdata',par);			% Store parameters in figure's userdata.
 
   aP=subplot(4,3,[10 11 12]);			% LOWER PANEL
@@ -301,7 +329,7 @@ for j=1:N	% Loop columns to check
   if any(iPn), hPnP=line(PRES(iPn,J(j)),ii(iPn)); 
     set(hPnP,'color','c','marker','o','markersize',par.newpressureflagsmarkersize,'linestyle','none');
   end
-  axis ij; xlabel(PRESname); ylabel index; title(PRESname); grid;  % Cosmetics
+  axis ij; xlabel(PRESname,'interpreter','none'); ylabel index; title(PRESname,'interpreter','none'); grid;  % Cosmetics
  
   aT=subplot(4,3,[1 4 7]);			% LEFT PANEL
   hrT=plot(temp,pres);				% Reference profiles
@@ -323,7 +351,7 @@ for j=1:N	% Loop columns to check
   if any(iPn), hPnT=line(TEMP(iPn,J(j)),PRES(iPn,J(j))); 
     set(hPnT,'color','c','marker','o','markersize',par.newpressureflagsmarkersize,'linestyle','none');
   end
-  axis ij; xlabel(TEMPname); ylabel(PRESname); title(TEMPname); grid;  % Cosmetics
+  axis ij; xlabel(TEMPname,'interpreter','none'); ylabel(PRESname,'interpreter','none'); title(TEMPname,'interpreter','none'); grid;  % Cosmetics
   
   aS=subplot(4,3,[2 5 8]);			% MIDDLE PANEL		 
   hrS=plot(sal,pres);				% Reference profiles	 
@@ -345,7 +373,7 @@ for j=1:N	% Loop columns to check
   if any(iPn), hPnS=line(PSAL(iPn,J(j)),PRES(iPn,J(j))); 
     set(hPnS,'color','c','marker','o','markersize',par.newpressureflagsmarkersize,'linestyle','none'); 
   end
-  axis ij; xlabel(PSALname); ylabel(PRESname); title(PSALname); grid;  % Cosmetics
+  axis ij; xlabel(PSALname,'interpreter','none'); ylabel(PRESname,'interpreter','none'); title(PSALname,'interpreter','none'); grid;  % Cosmetics
 
   if par.density
     aD=subplot(4,3,[3 6 9]);			% RIGHT PANEL (AUXILLARY GRAPH)
@@ -370,45 +398,11 @@ for j=1:N	% Loop columns to check
     if any(iPn), hPnD=line(DENS(iPn,J(j)),PRES(iPn,J(j))); 
       set(hPnD,'color','c','marker','o','markersize',par.newpressureflagsmarkersize,'linestyle','none'); 
     end
-    axis ij; xlabel('Potential density'); ylabel(PRESname); title('Potential density'); grid;  % Cosmetics
-    set(hD(j),'color','r','linestyle','none','Marker','s','MarkerEdgecolor','m','markersize',par.cursorsize,'linewidth',par.cursorthickness,'Tag','check_profiles_line'); % The marked region
+    axis ij; xlabel('Potential density'); ylabel(PRESname,'interpreter','none'); title('Potential density'); grid;  % Cosmetics
+    set(hD(j),'color','r','linestyle','none','Marker','s','MarkerEdgecolor','m',...
+	      'markersize',par.cursorsize,'linewidth',par.cursorthickness,'Tag','check_profiles_line'); % The marked region
   end
 
-  % SETTINGS ON ALL LINES AND TEXT, LABELS ETC.:
-  set([hppT;hppS;hppD],'color','c','marker','.','markersize',par.profilesmarkersize);		% Same cycle Parallel profile
-  if length(hppS)==2, set([hppT(2);hppS(2);hppD(2)],'color','g'); end				% Next Parallel profile
-  set([hnT;hnS;hnD],'color','b','marker','.','markersize',par.profilesmarkersize);		% Neighbouring profiles
-  set([hrT;hrS;hrD],'color',par.referencedatacolour);						% Reference profiles
-  % Monthly color and thickness gradient in refdata based on time difference in year:
-  for i=2:11, dmon==i; set([hrT(ans),hrS(ans),hrD(ans)],'color',brighten(par.referencedatacolour,-.2+.1*i),'linewidth',1.5-.12*i); end
-  for i=0:1,  dmon==i; set([hrT(ans),hrS(ans),hrD(ans)],'color',brighten(par.referencedatacolour+[0 .1 0],-.2+.1*i),'linewidth',1.5-.12*i); end
-  set([hrT;hrS;hrD; hnT;hnS;hnD; hmP;hmT;hmS;hmD; hppT;hppS;hppD],'handlevisibility','off');	% All visualisation lines inactive
-  set([hmP;hmT;hmS;hmD],'color','r','linestyle','-','linewidth',par.profileslinewidth,...
-		    'Marker','.','markersize',par.profilesmarkersize);				% Main visualisation line
-  set([hP(j);hT(j);hS(j)],'linestyle','none','Marker','s','MarkerEdgecolor','m',...
-		    'markersize',par.cursorsize,'linewidth',par.cursorthickness,'Tag','check_profiles_line'); % The cursors of marked region
-  set([hP(j)],'MarkerEdgecolor',[0 .6 0]);							% Cursor in pressure graph always green
-  set([hPx;hTx;hSx;hDx],'color','k','horizontalalignment','center',...
-		    'clipping','on','fontsize',par.fontsize,'Tag','check_profiles_text');	% Flags shown as text
-  set([hPiT,hPiS,hPiD],'linestyle','none','marker','s','MarkerEdgeColor',[0 .6 0],...
-		    'markersize',par.cursorsize+4,'linewidth',round(par.cursorthickness/2),'Tag','check_profiles_pline'); % Pressure marks on the other plots
-  %mima(get([hT(j);hS(j);hppT;hppS;hnT;hnS;hrT;hrS],'ydata')); set([aT,aS,aD],'ylim',ans+[-10 10]);% Same pressure limits on all
-  mima(get([hT(j);hS(j);hnT;hnS],'ydata')); set([aT,aS,aD],'ylim',ans+[-10 10]);% Same pressure limits on all
-  set(aP,'xlim',ans+[-10 10]);									% and on pressure's y-axis
-  set([aP,aT,aS,aD],'color',par.backgroundpalette{2},'fontsize',par.fontsize);			% Fontsize for both axis labels and flag marks
-  mima(find(~isnan(get(hP(j),'xdata')))); set(aP,'ylim',ans+[-5 5]);				% Index limit to existing data only
-  mima(get([hT(j);hppT;hnT;hrT],'xdata')); set(aT,'xlim',ans+[-.1 .1]);		% Initial TEMP zoom.
-  mima(get([hS(j);hppS;hnS;hrS],'xdata')); set(aS,'xlim',ans+[-.01 .01]);	% Initial PSAL zoom.  
-  set(aP,'userdata',[xlim(aP) ylim(aP)],'Tag','1');				% Store original limits, 
-  set(aT,'userdata',[xlim(aT) ylim(aT)],'Tag','2');				% and tag axes.
-  set(aS,'userdata',[xlim(aS) ylim(aS)],'Tag','3');  
-  if ~isempty(aD), 
-    mima(get([hD(j);hppD;hnD;hrD],'xdata')); set(aD,'xlim',ans+[-.01 .01]);	% Initial DENS zoom.
-    set(aD,'userdata',[xlim(aD) ylim(aD)],'Tag','4');				% Store zoom, and tag axes. 
-  end
-  htxt=['Press ''n'' for iNstructions']; ma=multilabel({header;htxt},'t');	% The main title
-  set(ma(2),'fontweight','bold','fontsize',16,'interpreter','none');
-  
   % Place and plot inlay 'map' showing how positions relate to each other: % INLAY
   if ~isempty(LONG(jjj)) & ~isempty(LAT(jjj))
     get(aT,'position'); 
@@ -427,12 +421,66 @@ for j=1:N	% Loop columns to check
       hePOS=line(LONG(J(j)),LAT(J(j))); set(hePOS,'marker','s','color','r');	% Position of the profile in question
       set(aM,'visible','off');							% Hide axes
     end
-    dtnote=['Reference data are from months ',zipnumstr(mons),' in years ',zipnumstr(yrs)];
-    multilabel(dtnote,'b');							% Info about seasonality and period of refdata
+    if ~isempty(long)
+      dtnote=['Reference data are from months ',zipnumstr(mons),' in years ',zipnumstr(yrs)];
+      multilabel(dtnote,'b');							% Info about seasonality and period of refdata
+    end
     set(aM,'Userdata','check_profiles_map');					% Identifier for predit
     set(aM,'PickableParts','none');						% Avoid this axis to become current
   end
 
+  % SETTINGS ON ALL LINES AND TEXT, LABELS ETC.:
+  set([hppT;hppS;hppD],'color','c','marker','.','markersize',par.profilesmarkersize);		% Same cycle Parallel profile
+  if length(hppS)==2, set([hppT(2);hppS(2);hppD(2)],'color','g'); end				% Next Parallel profile
+  set([hnT;hnS;hnD],'color','b','marker','.','markersize',par.profilesmarkersize);		% Neighbouring profiles
+  set([hrT;hrS;hrD],'color',par.referencedatacolour);						% Reference profiles
+  % Monthly color and thickness gradient in refdata based on time difference in year:
+  for i=2:11, dmon==i; set([hrT(ans),hrS(ans),hrD(ans)],'color',brighten(par.referencedatacolour,-.2+.1*i),'linewidth',1.5-.12*i); end
+  for i=0:1,  dmon==i; set([hrT(ans),hrS(ans),hrD(ans)],'color',brighten(par.referencedatacolour+[0 .1 0],-.2+.1*i),'linewidth',1.5-.12*i); end
+  near=find(abs(rdt)<par.nearintime); 
+  if any(near)
+    set([hrT(near),hrS(near),hrD(near)],'color',par.nearcolour,'linewidth',par.profileslinewidth);% Highlight if actually the same month
+    set(gcf,'currentaxes',aM);									% For adding near points to map	
+    clear hnetx
+    for i=1:length(near)									% Mark the near profiles with days difference
+      neartxt=[int2str(round(rdt(near(i)))),'/',int2str(round(sw_dist([LAT(J(j)),lat(near(i))],[LONG(J(j)),long(near(i))],'km')))];
+      xt=get(hrT(near(i)),'xdata'); yt=get(hrT(near(i)),'ydata');  find(~isnan(xt)&~isnan(yt));
+      hnetx(i,1)=text(aT,xt(ans(1)),yt(ans(1)),neartxt);
+      xt=get(hrS(near(i)),'xdata'); yt=get(hrS(near(i)),'ydata');  find(~isnan(xt)&~isnan(yt));
+      hnetx(i,2)=text(aS,xt(ans(1)),yt(ans(1)),neartxt);
+      xt=get(hrD(near(i)),'xdata'); yt=get(hrD(near(i)),'ydata');  find(~isnan(xt)&~isnan(yt));
+      hnetx(i,3)=text(aD,xt(ans(1)),yt(ans(1)),neartxt);
+      hnetx(i,4)=m_text(long(near(i)),lat(near(i)),int2str(rdt(near(i))));
+    end
+    set(hnetx,'clipping','off','color',par.nearcolour,'VerticalAlignment','bottom','horizontalalignment','center');
+    set(hnetx(:,4),'VerticalAlignment','middle');
+  end
+  set([hrT;hrS;hrD; hnT;hnS;hnD; hmP;hmT;hmS;hmD; hppT;hppS;hppD],'handlevisibility','off');	% All visualisation lines inactive
+  set([hmP;hmT;hmS;hmD],'color','r','linestyle','-','linewidth',par.profileslinewidth,...
+		    'Marker','.','markersize',par.profilesmarkersize);				% Main visualisation line
+  set([hP(j);hT(j);hS(j)],'linestyle','none','Marker','s','MarkerEdgecolor','m','markersize',par.cursorsize,...
+		    'linewidth',par.cursorthickness,'Tag','check_profiles_line');		% The cursors of marked region
+  set([hP(j)],'MarkerEdgecolor',[0 .6 0]);							% Cursor in pressure graph always green
+  set([hPx;hTx;hSx;hDx],'color','k','horizontalalignment','center',...
+		    'clipping','on','fontsize',par.fontsize,'Tag','check_profiles_text');	% Flags shown as text
+  set([hPiT,hPiS,hPiD],'linestyle','none','marker','s','MarkerEdgeColor',[0 .6 0],...
+		    'markersize',par.cursorsize+4,'linewidth',round(par.cursorthickness/2),'Tag','check_profiles_pline'); % Pressure marks on the other plots
+  mima(get([hT(j);hS(j);hnT;hnS],'ydata')); set([aT,aS,aD],'ylim',ans+[-10 10]);		% Same pressure limits on all
+  set(aP,'xlim',ans+[-10 10]);									% and on pressure's y-axis
+  set([aP,aT,aS,aD],'color',par.backgroundpalette{2},'fontsize',par.fontsize);			% Fontsize for both axis labels and flag marks
+  mima(find(~isnan(get(hP(j),'xdata')))); set(aP,'ylim',ans+[-5 5]);				% Index limit to existing data only
+  mima(get([hT(j);hppT;hnT;hrT],'xdata')); set(aT,'xlim',ans+[-.1 .1]);		% Initial TEMP zoom.
+  mima(get([hS(j);hppS;hnS;hrS],'xdata')); set(aS,'xlim',ans+[-.01 .01]);	% Initial PSAL zoom.  
+  set(aP,'userdata',[xlim(aP) ylim(aP)],'Tag','1');				% Store original limits, 
+  set(aT,'userdata',[xlim(aT) ylim(aT)],'Tag','2');				% and tag axes.
+  set(aS,'userdata',[xlim(aS) ylim(aS)],'Tag','3');  
+  if ~isempty(aD), 
+    mima(get([hD(j);hppD;hnD;hrD],'xdata')); set(aD,'xlim',ans+[-.01 .01]);	% Initial DENS zoom.
+    set(aD,'userdata',[xlim(aD) ylim(aD)],'Tag','4');				% Store zoom, and tag axes. 
+  end
+  htxt=['Press ''n'' for iNstructions']; ma=multilabel({header;htxt},'t');	% The main title
+  set(ma(2),'fontweight','bold','fontsize',16,'interpreter','none');
+  
   % % If only one parameter input, delete the axes:
   % if all(isnan(TEMP(:,J(j)))), delete(aT); aT=[]; end
   % if all(isnan(PSAL(:,J(j)))), delete(aS); aS=[]; end
@@ -538,3 +586,8 @@ TEMPqcn(isnan(TEMP))=' ';
 PSALqcn(isnan(PSAL))=' ';
 
 set(0,'Tag','');
+
+% Shape output according to input, regardless of featuretype:
+PRESqcn=reshape(PRESqcn,om,on);
+TEMPqcn=reshape(TEMPqcn,om,on);
+PSALqcn=reshape(PSALqcn,om,on);

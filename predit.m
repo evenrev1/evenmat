@@ -20,7 +20,7 @@ instructions=[...
     "Green lines are reference data in same or neighbouring month of year (i.e., season; if provided).";
     "Reference data lines are thinner the more off-season they are";
     "Green squares are points with PRES flagged qc='4'";
-    "Any cyan circles are nonmonotonic pressure points found now."; 
+    "Any cyan circles are nonmonotonic pressure points found now. You need to flag these yourself."; 
     "Inlay shows geometry of positions with polygon for reference data selection in grey (if any).";
     "There are keystrokes for different types of zooming.";
     "You can also press window-control buttons to zoom etc., but turn them off before using any keystrokes.";
@@ -53,12 +53,16 @@ helptext=[...
     "<leftarrow> - zoom out.";
     "c - Center on visible profile and zoom x-axis in.";
     "x - Center on visible profile and zoom x-axis out.";
-    "b - Center on visible profile and zoom y-axis in.";
-    "v - Center on visible profile and zoom y-axis out.";
+    "v - Center on visible profile and zoom y-axis in.";
+    "b - Center on visible profile and zoom y-axis out.";
     ""
-    "MOVING:"
+    "PANNING:"
     "t - Move view up.";
     "g - Move view down.";
+    ", - Move view left.";
+    ". - Move view right.";
+    "<shift> - move view up along main profile"
+    "<control> - move view down along main profile"
     ""
     "FLAGGING:"
     "1-9 - Flag marked points '1'-'9'."; 
@@ -70,6 +74,7 @@ helptext=[...
     "m - Display keystroke Menu.";
     "n - Display iNstructions and legend.";
     "f - Display Flag list.";
+    "<alt>/<option> - Pop up a 3D figure for looking (only) at profiles and flags when there are duplicate profiles";
     "<escape> - Revert to original flags.";
     "<space> - Approve station (column) and continue to next.";
     "<return> - End session."];
@@ -242,34 +247,79 @@ switch key
     get(axb(i),'userdata'); set(axb(i),'xlim',ans(1:2),'ylim',ans(3:4)); 
   end
   set(amap,'visible','on');
- case {'c','x','b','v','t','g'}					% ZOOM AND PAN:
-  if ismember(atyp,[2 3 4])					% Only allowed in main plots
-    nxl=get(gca,'xlim'); nyl=get(gca,'ylim');			% Get current ranges
-    ii=find(nyl(1)<y&y<nyl(2));					% Data in current depth range 
+ case {'c','x','b','v','t','g','comma','period','shift','control'}					% ZOOM AND PAN:
+  if ismember(atyp,[2 3 4])				% Only allowed in main plots
+    nxl=get(gca,'xlim');nyl=get(gca,'ylim');		% Get current ranges
+    cxl=nxl;		cyl=nyl;			% Save the current ranges
+    mxl=mean(nxl);	myl=mean(nyl);			% Mid of ranges
+    nna=find(~isnan(x));				% Non-nan data only
+    ii=nna(nxl(1)<x(nna)&x(nna)<nxl(2) & nyl(1)<y(nna)&y(nna)<nyl(2)); % Check for data in visible range 
     switch key, 
      case 'c', nxl=nxl+diff(nxl).*[1 -1]*par.zoomfactor-mean(nxl)+nanmean(x(ii)); % xoom in x
      case 'x', nxl=nxl+diff(nxl).*[-1 1]*par.zoomfactor-mean(nxl)+nanmean(x(ii)); % zoom out x
-     case 'b', nyl=nyl+diff(nyl).*[1 -1]*par.zoomfactor-mean(nyl)+nanmean(y(ii)); % xoom in y
-     case 'v', nyl=nyl+diff(nyl).*[-1 1]*par.zoomfactor-mean(nyl)+nanmean(y(ii)); % zoom out y
-     case 't'; nyl=nyl-diff(nyl).*par.zoomfactor;				% move up y
-     case 'g'; nyl=nyl+diff(nyl).*par.zoomfactor;				% move down y
-    end
-    ii=find(nxl(1)<x&x<nxl(2) & nyl(1)<y&y<nyl(2));		% Check for data in new range 
-    xok=abs(diff(mima(x(ii)))/diff(nxl))>par.zoomfactor/50;	% Not too small x-extent of data
-    yok=abs(diff(mima(y(ii)))/diff(nyl))>par.zoomfactor/50; 	% Not too small y-extent of data
-    if length(ii)>2 & xok & yok					% And require three points
-      switch key
-       case {'c','x'},		set(gca,'xlim',nxl);		% The change is in x-direction
-       case {'b','v','t','g'},	set(gca,'ylim',nyl);		% The change is in y-direction
+     case 'v', nyl=nyl+diff(nyl).*[1 -1]*par.zoomfactor-mean(nyl)+nanmean(y(ii)); % xoom in y
+     case 'b', nyl=nyl+diff(nyl).*[-1 1]*par.zoomfactor-mean(nyl)+nanmean(y(ii)); % zoom out y
+     case 't', nyl=nyl-diff(nyl).*par.zoomfactor;				% move up y
+     case 'g', nyl=nyl+diff(nyl).*par.zoomfactor;				% move down y
+     case 'comma', nxl=nxl-diff(nxl).*par.zoomfactor;				% move left (x)
+     case 'period', nxl=nxl+diff(nxl).*par.zoomfactor;				% move right (x)
+     case 'shift'								% Move up line
+      i=ii(y(ii)<myl);					% Indices to upper half of visible range 
+      %i=ii;		% First all visible range
+      groups(diff(i)); i=i(ans==max(ans));		% Use only the continuous part from middle
+      %i=i(y(i)<y(i(1))+(y(i(end))-y(i(1)))*par.zoomfactor); % Limit at upper fraction
+      if ~isempty(i) 
+	nxl=nxl-mxl+mean(x(i)); nyl=nyl-myl+mean(y(i));	% shift the center of frame to mean of selection
+	%[i(1),n1,nna(1)]
+	if length(i)<5 & i(1)>n1+5			 % Zoom out if very few points
+	  %nxl=nxl+[-1 1]*par.zoomfactor*diff(nxl); nyl=nyl+[-1 1]*par.zoomfactor*diff(nyl); 	      
+	  nxl=nxl+[-1 1]*par.zoomfactor*diff(mima(x(ii))); nyl=nyl+[-1 1]*par.zoomfactor*diff(mima(y(ii))); 
+	end
+      end     
+     case 'control'								% Move down line
+      i=ii(y(ii)>myl);					% Indices to lower half of visible range 
+      groups(diff(i)); i=i(ans==min(ans));		% Use only the continuous part from middle
+      if ~isempty(i) 
+	nxl=nxl-mxl+mean(x(i)); nyl=nyl-myl+mean(y(i));	% Shift the center of frame to mean of selection
+	%[i(end),n2,nna(end)]
+	if length(i)<5 & i(end)<n2-5			% Zoom out if very few points
+	  %nxl=nxl+[-1 1]*par.zoomfactor*diff(nxl); nyl=nyl+[-1 1]*par.zoomfactor*diff(nyl); 
+	  nxl=nxl+[-1 1]*par.zoomfactor*diff(mima(x(ii))); nyl=nyl+[-1 1]*par.zoomfactor*diff(mima(y(ii))); 
+	end
       end
-      for i=1:nalx-1							% The other plots:
-	if btyp(i)==1,	set(axb(i),'xlim',nyl,'ylim',ii([1 end]));	% change pressure plot like this
-	else		set(axb(i),'ylim',nyl);				% change other plots like this
+    end
+    % For all zoom and pan, check for data in new range:
+    ii=nna(nxl(1)<x(nna)&x(nna)<nxl(2) & nyl(1)<y(nna)&y(nna)<nyl(2));  
+    xok=abs(diff(mima(x(ii)))/diff(nxl))>par.zoomfactor/100;	% Not too small x-extent of data
+    yok=abs(diff(mima(y(ii)))/diff(nyl))>par.zoomfactor/100; 	% Not too small y-extent of data
+    if length(ii)>2 & ...					% Always require three points
+	  ((xok & contains('cx',key) | yok & contains('bvtg',key)) | ...
+	  strcmp('comma',key) | strcmp('period',key) | ...
+	  strcmp('shift',key) | strcmp('control',key))
+      switch key
+       case {'c','x','comma','period'},	set(gca,'xlim',nxl);		% The change is in x-direction
+       case {'b','v','t','g'},		set(gca,'ylim',nyl);		% The change is in y-direction
+       case {'shift','control'},	set(gca,'xlim',nxl,'ylim',nyl);	% The change is in both directions
+      end
+      for i=1:nalx-1							% Change the other plots:
+	if btyp(i)==1,	set(axb(i),'xlim',nyl,'ylim',ii([1 end]));	% pressure is special
+	else		set(axb(i),'ylim',nyl,'xlim',mima(xb{i}(ii))+[-1 1]*par.zoomfactor*max(diff(mima(xb{i}(ii))),.001));
 	end
       end
       set(amap,'visible','off');				% Always turn off map when changing frame
     end
   end
+ case 'alt'	% Pop up a 3D figure for looking (only) at profiles and flags when there are duplicate profiles
+  figure
+  hm3d=plot3(x,y,1:length(x));	% Main visualisation line
+  h3d=line(x,y,1:length(x));	% The cursors of marked region
+  hPi3d=line(x,y,1:length(x));	% Pressure marks on the other plots
+  set(hm3d,'color','r','linestyle','-','linewidth',par.profileslinewidth,'Marker','.','markersize',par.profilesmarkersize);
+  set(h3d,'Markerindices',find(fl~='1' & fl~=' '),'linestyle','none','Marker','s','MarkerEdgecolor','m','markersize',par.cursorsize,'linewidth',par.cursorthickness);
+  set(hPi3d,'linestyle','none','marker','s','MarkerEdgeColor',[0 .6 0],'markersize',par.cursorsize+4,'linewidth',round(par.cursorthickness/2))
+  pfl=get(hb(1),'userdata');
+  set(hPi3d,'Markerindices',find(pfl~='1' & pfl~=' '));
+  xlabel x; ylabel y; zlabel index
  case 'z', fl(mi)='0';	
  case '1', fl(mi)='1';	
  case '2', fl(mi)='2';	

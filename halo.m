@@ -19,6 +19,8 @@ function [X,Y] = halo(x,y,dx,dy)
 %
 % See also CONVHULL
 
+% Last updated: Wed Apr 19 00:22:24 2023 by jan.even.oeie.nilsen@hi.no
+
 % Check input:
 error(nargchk(2,4,nargin));
 
@@ -39,8 +41,6 @@ X(:,:,1)=x;    Y(:,:,1)=y+dy;
 X(:,:,2)=x+dx; Y(:,:,2)=y; 
 X(:,:,3)=x;    Y(:,:,3)=y-dy; 
 X(:,:,4)=x-dx; Y(:,:,4)=y; 
-
-
 
 j=convhull([X(:),Y(:)]);
 
