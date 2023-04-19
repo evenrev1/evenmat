@@ -1,46 +1,43 @@
-function [dx,dt,I,J] = nearpos(LONG,LAT,T,long,lat,t,mdx,mdt,pri)
+function [dx,dt,I,J,JJ] = nearpos(LONG,LAT,T,long,lat,t,mdx,mdt,pri)
 % NEARPOS	Nearest geographical-temporal neighbours
 % 
-% [dx,dt,I,J] = nearpos(LONG,LAT,T,long,lat,t,mdx,mdt,pri)
+% [dx,dt,I,J,JJ] = nearpos(LONG,LAT,T,long,lat,t,mdx,mdt,pri)
 % 
 % LONG,LAT = Scalar or vector with the main set of positions.
 % T        = Matlab serial day times for the main set of positions.
 % long,lat = vectors with the other set of positions.
 % t        = Matlab serial day times the other set of positions.
-% mdx,mdt  = max limits for distance (km) and time (±days), to limit
-%            the size of the set of other positions.
+% mdx,mdt  = max limits for distance (km) and time (±days), by which
+%            to select other positions that are 'near' enough.
 % pri      = fraction defining priority between distance and days
 %            when sorting by 'nearness'. Values between 0-1,
 %            where low puts priority on distance, high puts priority
 %            on  time (default = 0.5 = 50/50 between days/km).
 %
 % dx       = MxN matrix of distances between the M main positions and
-%            N other positions.
+%            the N other positions.
 % dt       = matrix of time differences in the same format as dx.
 % I        = subscripts to the rows of dx and dt for differences
 %            inside the limits set by mdx and mdt, i.e. which main
 %            positions has 'near neighbours' in the other positions.
 % J        = subscripts to the columns of dx and dt for differences
-%            inside the limits set by mdx and mdt, sorted by
-%            'nearness' to each main position, i.e. which of the
+%            inside the limits set by mdx and mdt, i.e. which of the
 %            other positions are the 'near neigbours'.
-% 
-% EXPLANATION: JJ=J(ismember(I,27)) returns indices for the other
-% positions near enough to the 27th main position, sorted with the
-% nearest first. So for [LONG(27),LAT(27),T(27)], the nearest neighbours
-% are [long(JJ),lat(JJ),t(JJ)].
-% 
-% EXAMPLE: To collect all the near neighbours to each of M main
-% positions, 	
-%		for i=1:M
-%		  JJ{i}=J(ismember(I,i));
-%		end
+% JJ       = Mx1 cell with groups of indices to other positions
+%            nearby, for each main position. May be empty for some. 
+%
+% The subscripts are sorted by 'nearness' to each main position.
+% JJ=J(ismember(I,27)) returns indices for the other positions near
+% enough to the 27th main position, sorted with the nearest first. So
+% for [LONG(27),LAT(27),T(27)], the nearest neighbours are
+% [long(JJ),lat(JJ),t(JJ)]. For your convenience this is utilised in the
+% making of JJ.
 %
 % Requires SEAWATER  
 %
 % See also SW_DIST 
 
-% Last updated: Wed Apr 19 23:11:28 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Thu Apr 20 00:10:08 2023 by jan.even.oeie.nilsen@hi.no
 
 error(nargchk(5,9,nargin));
 LONG=LONG(:); LAT=LAT(:); m=length(LONG); % main positions
@@ -77,6 +74,11 @@ end
 [~,II]=sort((1-pri)*dx(JI)+pri*dt(JI)); % Sort the index after by 'distance' 
 JI=JI(II);
 [I,J]=ind2sub(size(dx),JI);	% Subscripts to the float-pos vs refdata-pos matrix:
+for i=1:m 
+  JJ{i,1}=J(ismember(I,i));	% Groups of indices to other
+                                % positions, for each main position 
+end
+
 
 % A 3D plot of it all:
 if nargout==0
@@ -88,14 +90,10 @@ if nargout==0
   xlabel long; ylabel lat; grid; datetick('z',12,'keeplimits');
   %view([0 90])
   % Select the accepted other positions for each main position:
-  JJ=nan(m,1);
   for i=1:m
-    J(ismember(I,i));
-    if any(ans)
-      JJ(i)=ans(1); 
-      line([long(JJ(i)) LONG(i)],[lat(JJ(i)) LAT(i)],[t(JJ(i)) T(i)],'color','g');
+    if any(JJ{i})
+      line([long(JJ{i}(1)) LONG(i)],[lat(JJ{i}(1)) LAT(i)],[t(JJ{i}(1)) T(i)],'color','g');
+      line(long(JJ{i}(1)),lat(JJ{i}(1)),t(JJ{i}(1)),'marker','o','linestyle','none','color','r');
     end
   end
-  ~isnan(JJ);
-  line(long(JJ(ans)),lat(JJ(ans)),t(JJ(ans)),'marker','o','linestyle','none','color','r');
 end
