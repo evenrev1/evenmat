@@ -1,4 +1,4 @@
-function s = snippet(x,filename,opt,conj,groupfields,Nstr)
+function s = snippet(x,filename,opt,conj,groupfields,Nstr,ext)
 % SNIPPET	Prints object content as string to file.
 % Transforms any input to strings and lists them with commas and
 % 'and' dependent on the length of the input. Also writes result to a
@@ -6,7 +6,7 @@ function s = snippet(x,filename,opt,conj,groupfields,Nstr)
 % order to include the content in documentation (e.g., using LaTeX
 % \input{}). 
 % 
-% s = snippet(x,filename,opt,conj,groupfields,Nstr)
+% s = snippet(x,filename,opt,conj,groupfields,Nstr,ext)
 % 
 % x           = any variable (possibly)
 % filename    = Optional file name. Particularly useful when input is
@@ -25,6 +25,7 @@ function s = snippet(x,filename,opt,conj,groupfields,Nstr)
 %	        sum up contents using GROUPS instead of listing all
 %	        numbers (default = {''}).
 % Nstr	      = Max length to show for long vector fields (default = 50).
+% ext         = file name extension, replcing the default 'tex'.
 % 
 % s           = The resulting string, as is also written to file.
 %
@@ -38,21 +39,22 @@ function s = snippet(x,filename,opt,conj,groupfields,Nstr)
 %
 % See also MAT2TAB STRING DEBLANK ZIPNUMSTR GROUPS
 
-% Last updated: Fri Apr 14 13:55:36 2023 by jan.even.oeie.nilsen@hi.no
+% Last updated: Fri Aug 11 11:22:48 2023 by jan.even.oeie.nilsen@hi.no
 
-error(nargchk(1,6,nargin));
+error(nargchk(1,7,nargin));
+if nargin <7 | isempty(ext),		ext='tex';		end
 if nargin <6 | isempty(Nstr),		Nstr=50;		end
 if nargin <5 | isempty(groupfields),	groupfields={''};	end
 if nargin <4 | isempty(conj),		conj=', and ';		end
 if nargin <3 | isempty(opt),		opt='';			end
 if nargin <2 | isempty(filename)
   if isempty(inputname(1))
-    filename=['snippet.tex'];
+    filename=['snippet.',ext];
   else
-    filename=[inputname(1),'.tex'];
+    filename=[inputname(1),'.',ext];
   end
 elseif ~strcmp(filename,';')
-  filename=[filename,'.tex'];
+  filename=[filename,'.',ext];
 end
 
 if ~strcmp(filename,';')
