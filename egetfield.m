@@ -1,16 +1,18 @@
-function [y,yfn,parent] = egetfield(s,fn,fv)
+function [y,yfn,parent] = egetfield(s,fn,fv,fvo)
 % EGETFIELD	Get structure field contents at any level
 % Searches the whole structure at all levels for the specified field
 % name, and delivers results for all matching occurences. It is also
 % possible to limit to specific values of the named field.  
 %
-% [y,yfn,parent] = egetfield(s,fn,fv)
+% [y,yfn,parent] = egetfield(s,fn,fv,fvo)
 % 
-% s	 = Struct to be examined.
+% s	 = Struct to be examined (single base-name, of struct).
 % fn	 = char of desired field name.
 % fv	 = desired value of field. 
+% fvo	 = value of other field neighbouring the desired field.
 %
-% y	 = Cell with value(s) of specified field.
+% y	 = Cell with value(s) of specified field, or value of other
+%	   field if fvo is input. 
 % yfn	 = string object with full field name(s) corresponding to each y.
 % parent = string object with full field name(s) of parent field(s)
 %	   corresponding to each y. The parent is useful when your
@@ -25,7 +27,8 @@ function [y,yfn,parent] = egetfield(s,fn,fv)
 %
 % See also STRUCT GETFIELD EFIELDNAMES 
 
-error(nargchk(2,3,nargin));
+error(nargchk(2,4,nargin));
+if nargin<4 | isempty(fvo), fvo=[]; end
 if nargin<3 | isempty(fv), fv=[]; end
 
 eval([inputname(1),'=s;']);				% Use input name of struct to make name list valid
@@ -69,14 +72,32 @@ end
 
 % If a specific value is part of the search, reduce the list:
 if ~isempty(fv)
-  yy=cell2mat(pad(y));
-  if ischar(yy),	
-    strcmp(y,fv); 
-  elseif isnumeric(yy),	
+  if iscell(y)
+    if isstruct(y{1})
+      yy=cell2mat(y);
+      yy=struct2cell(yy);
+      yy=string(yy);
+    elseif ischar(y{1})
+      yy=cell2mat(pad(y));
+      yy=strip(string(yy));
+    end
+  elseif ischar(y)
+    yy=string(y);
+  end
+  % yy should be string or numeric by now:
+  if isstring(yy) 
+    strcmp(yy,fv);
+  elseif isnumeric(yy)
     yy==fv;		
   end
   y=y(ans);
   yfn=yfn(ans);
   parent=parent(ans);
 end
- 
+
+% If another field's value is sought as output:
+if ~isempty(fvo) & ~isempty(parent)
+  eval(strcat('y=',parent,'.',fvo,';'));
+end
+
+  
