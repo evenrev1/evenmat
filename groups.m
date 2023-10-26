@@ -6,6 +6,7 @@ function [gv,gi,gs]=groups(x,slim)
 %
 % x     = data-vector ínput
 % slim  = size limit (lower) of what is considered groups (default=2).
+%
 % gv    = group-vector of size(x), containing numbers where the groups
 %         are, and zeros elsewhere. The numbers 1,2,... identifies the
 %         group number.
@@ -26,6 +27,8 @@ function [gv,gi,gs]=groups(x,slim)
 % the general Spearman Rank Correlation.
 %
 % See also FIND SNIPPET ZIPNUMSTR
+
+% Last updated: Wed Oct 25 07:35:37 2023 by jan.even.oeie.nilsen@hi.no
 
 error(nargchk(1,2,nargin));
 if nargin<2 | isempty(slim), slim=2; end

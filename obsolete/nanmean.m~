@@ -1,0 +1,24 @@
+function [y,n]=nanmean(x)
+% NANMEAN       a MEAN that tolerates (ignores) NaNs in the input
+%
+% [y,n] = nanmean(x)
+%
+% x    = input vector (works only on vectors!)
+% y    = the mean value
+% n    = the length of x less the NaNs
+%
+% See also MEAN
+
+%Time-stamp:<Last updated on 03/03/10 at 22:08:34 by even@gfi.uib.no>
+%File:</home/janeven/matlab/garage/nanmean.m>
+
+error(nargchk(1,1,nargin));
+%if ~isvector(x)&~issingle(x), error('Input must be a vector!'); end
+
+x=x(find(~isnan(x)));               % remove the NaNs
+
+n=length(x);
+
+if n==0,	y=nan;
+else		y=mean(x);	end
+

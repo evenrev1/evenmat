@@ -1,0 +1,8 @@
+% This folder contains functions that have become obsolete with
+% newer versions of Matlab, but still could be useful on older
+% versions.
+%
+% Simply add this folder to the path list when the need occurs.
+%
+% If Matlab reports name conflicts with some of the functions in tis
+% folder, you can just remove them. 

@@ -1,5 +1,5 @@
 function [files,names] = edir(maindir,extension,mindepth,keepfile,newfiles)
-% EDIR	finds all specified files in a directory and subdirectories.
+% EDIR	finds all specified files in a directory and its subdirectories.
 % 
 % [files,names] = edir(maindir,extension,mindepth,keepfile,newfiles)
 % 
@@ -28,35 +28,53 @@ function [files,names] = edir(maindir,extension,mindepth,keepfile,newfiles)
 %
 % See also MKDIR DIR LS EMKDIR
 
+% Last updated: Thu Oct 26 15:13:45 2023 by jan.even.oeie.nilsen@hi.no
+
 if nargin<5|isempty(newfiles), newfiles=logical(0); else newfiles=logical(newfiles); end
 if nargin<4|isempty(keepfile), keepfile=logical(0); else keepfile=logical(keepfile); end
 if nargin<3|isempty(mindepth), mindepth=0; end
 if nargin<2|isempty(extension), extension='*'; end
 if nargin<1|isempty(maindir), maindir=pwd; end
 
-if newfiles
-  prev=textread([extension,'files.txt'],'%s');
-else
-  newfiles=logical(0);
-end
+if keepfile | newfiles % In the rare occasion when someone wants to use the
+            % file or compare to previous finds, they will have to be
+            % on MacOS/Unix/Linux so that edir can use the shell command find:
+  
+  if newfiles
+    prev=textread([extension,'files.txt'],'%s');
+  else
+    newfiles=logical(0);
+  end
+  
+  %eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth 0 > ',extension,'files.txt'])
+  %eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
+  eval(['!find ',' ',maindir,filesep,'*',' -mindepth ',int2str(mindepth),' -regex ''.*.',extension,'''',' > ',extension,'files.txt'])
+  
+  try files=textread([extension,'files.txt'],'%s','delimiter','');
+    
+    if nargout==2
+      F=textread([extension,'files.txt'],'%s','delimiter',filesep);
+      f=contains(F,['.',extension]);
+      names=F(f);
+    end
 
-%eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth 0 > ',extension,'files.txt'])
-%eval(['!find ',maindir,filesep,'* -regex ''.*.',extension,''' -mindepth ',int2str(mindepth),' > ',extension,'files.txt'])
-eval(['!find ',' ',maindir,filesep,'*',' -mindepth ',int2str(mindepth),' -regex ''.*.',extension,'''',' > ',extension,'files.txt'])
-
-try files=textread([extension,'files.txt'],'%s','delimiter','');
-
-  if nargout==2
-    F=textread([extension,'files.txt'],'%s','delimiter',filesep);
-    f=contains(F,['.',extension]);
-    names=F(f);
+    if ~keepfile, delete([extension,'files.txt']); end
+    
+    if newfiles,  files=setxor(prev,files); end
+    
+  catch 
+    files=''; names='';
   end
 
-  if ~keepfile, delete([extension,'files.txt']); end
+else % Use the purely Matlab based version
   
-  if newfiles,  files=setxor(prev,files); end
+  extension=replace(extension,'*','');		% Remove the asterisk as it is superfuous in this case
+  d=dir([maindir,filesep,'**/*',extension]);	% Use deep searching dir
+  files=strcat({d.folder}',filesep,{d.name}');	% Merge the outputs to cell list with full paths
+  names={d.name}';				% Get list of names
+  ~contains(files,[filesep,'.']);		% Remove '.', '..', etc. directories from the list
+  files=files(ans); names=names(ans);
 
-catch 
-  files=''; names='';
 end
-
+  
+  
