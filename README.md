@@ -6,7 +6,7 @@
  all its contents. However you might need some of it if you want to
  run other functions of mine.
 
- CHANGES are made every now and then.
+ CHANGES are made every now and then. After 2024 almost never.
 
  CROSSREFERENCES are used a lot, so a download of it all is
  recommended. Downloading just one function might send you back here
