@@ -14,4 +14,4 @@
 
  Updates at [https://github.com/evenrev1/evenmat.git](https://github.com/evenrev1/evenmat.git)
  
- Good luck! 
+ Good luck! :-) 
